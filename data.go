@@ -59,24 +59,34 @@ func (d DB) GetMeasurements(l string, id int64, st time.Time, et time.Time) (ms 
 func (d DB) SetMeasurements(ms Measurements) (err error) {
 
 	// Create tx
-	tx, err := d.Begin()
+	tx, err := d.Begin()	
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	// Defer
-	defer func () {
-		if err == nil {
-			tx.Commit()
-		} else {
-			tx.Rollback()
-		}
 
-	}()
+	var query = "INSERT INTO measurements (time,location,clusterID,V,I,humidity,temp,angleTheta,angleAlpha,spTemp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+        stmt, err := tx.Prepare(query)	
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	
-	var query = "INSERT INTO measurements (time,location,clusterID,V,I,humidity,temp,angleTheta,angleAlpha,spTemp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"	
-	for _,m := range ms {	
-		_, err = d.Exec(query, m.Time, m.Location, m.ClusterID, m.Voltage, m.Ampere, m.Humidity, m.Temp, m.AngleTheta, m.AngleAlpha, m.SpTemp)
+	// Defer
+        defer func () {
+                if err == nil {
+                        log.Println("Commit")
+                        tx.Commit()
+                } else {
+                        log.Println("RollBack")
+                        tx.Rollback()
+                }
+		stmt.Close()
+        }()
+	
+	for _,m := range ms {
+			
+		_, err = stmt.Exec(m.Time, m.Location, m.ClusterID, m.Voltage, m.Ampere, m.Humidity, m.Temp, m.AngleTheta, m.AngleAlpha, m.SpTemp)
 		if err != nil {
 			log.Println(err)
 			return
