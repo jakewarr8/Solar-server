@@ -20,3 +20,11 @@ type Measurement struct {
 
 type Measurements []Measurement
 
+
+type LocationInfo struct {
+	LocationAbbrv	string		`json:"location"`
+ 	ClusterIDs	[]int64		`json:"clusterids"`
+}
+
+type LocationsInfos []LocationInfo
+

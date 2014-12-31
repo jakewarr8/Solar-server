@@ -96,3 +96,47 @@ func (d DB) SetMeasurements(ms Measurements) (err error) {
 	return 
 }
 
+func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
+	var query = "SELECT location, clusterID FROM measurements GROUP BY location, clusterID;"
+	rows, err := d.Query(query)
+	
+	if err != nil {
+                log.Println(err)
+                return
+        }
+        defer rows.Close()
+
+	x := make(map[string]LocationInfo)	
+	
+        for rows.Next() {        
+		var l string 
+		var clusterid int64
+                
+		err = rows.Scan(&l, &clusterid)
+                //log.Println(l,clusterid)
+		
+
+		if err != nil {
+			log.Println(err)
+			return
+		} else {
+			locinfo, ok := x[l]
+			if ok {
+				locinfo.ClusterIDs = append(locinfo.ClusterIDs,clusterid)
+				x[l] = locinfo
+				log.Println(x)
+			} else {
+				locinfo.LocationAbbrv = l
+				locinfo.ClusterIDs = append(locinfo.ClusterIDs,clusterid)
+				x[l] = locinfo
+				//log.Println(x)
+			}
+		}
+        }
+
+	for _, value := range x {
+		locInfos = append(locInfos, value)
+	}	
+        return locInfos,rows.Err()
+}
+

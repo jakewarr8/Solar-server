@@ -23,6 +23,7 @@ type DataHandler interface {
 	GetMeasurement(string, int64, time.Time) (Measurement, error)
 	GetMeasurements(string, int64, time.Time, time.Time) (Measurements, error)
 	SetMeasurements(Measurements) (error)
+	GetLocationsClusters ()(locInfos LocationsInfos,  err error)
 }
 
 func NewRouter(db DataHandler) *mux.Router {
@@ -60,6 +61,12 @@ func NewRouter(db DataHandler) *mux.Router {
 			"/measurements/insert",
 			fe.MeasurementsPut,
 		},
+		Route{
+                        "ShowLocationsClusters",
+                        "GET",
+                        "/locationsInfo",
+                        fe.ShowLocationsClusters,
+                },
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -82,7 +89,7 @@ func NewRouter(db DataHandler) *mux.Router {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome!")
+	fmt.Fprintln(w, "Hi!")
 }
 //2014-12-12 14:07:00
 func MeasurementsIndex(w http.ResponseWriter, r *http.Request) {
@@ -206,4 +213,18 @@ func (fe FrontEnd) MeasurementsPut(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func (fe FrontEnd) ShowLocationsClusters(w http.ResponseWriter, r *http.Request) {
+
+	locInfos, _ := fe.DataHandler.GetLocationsClusters() 
+
+        w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+        w.WriteHeader(http.StatusOK)
+
+        if err := json.NewEncoder(w).Encode(locInfos); err != nil {
+                log.Println(err)
+        }
+
+}
+
 
