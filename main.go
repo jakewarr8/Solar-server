@@ -15,7 +15,8 @@ func main() {
 
         defer db.Close(); //????
 
-	//fe := FrontEnd{DataHandler: db}
+	NewFetcher()
+
 	router := NewRouter(db)
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

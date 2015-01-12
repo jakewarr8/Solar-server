@@ -3,6 +3,7 @@ package main
 import (
 	//"database/sql"
 	"time"
+	"encoding/xml"
 )
 
 type Measurement struct {
@@ -28,3 +29,17 @@ type LocationInfo struct {
 
 type LocationsInfos []LocationInfo
 
+
+
+type Measurementx struct {
+	LVs		[]KeyPair	`xml:"r"`	
+	ts		int64		`xml:"ts"`
+	XMLName		xml.Name	`xml:"data"`
+
+}
+
+type KeyPair struct {
+	nk	string		`xml:"n,attr"`	//CT1
+	tk 	string		`xml:"t,attr"`	//I,V
+	data	float64		`xml:"v>i"`	
+}

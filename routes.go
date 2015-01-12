@@ -72,17 +72,11 @@ func NewRouter(db DataHandler) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
     	for _, route := range routes {
-
-	//Logger
-	// var handler http.Handler
-	// handler = route.HandlerFunc
-	// handler = Logger(handler, route.Name)
-        
-	router.
-            Methods(route.Method).
-            Path(route.Pattern).
-            Name(route.Name).
-            Handler(route.HandlerFunc)
+		//Logger
+		// var handler http.Handler
+		// handler = route.HandlerFunc
+		// handler = Logger(handler, route.Name)
+		router.Methods(route.Method).Path(route.Pattern).Name(route.Name).Handler(route.HandlerFunc)
     	}
 
     return router
@@ -209,14 +203,17 @@ func (fe FrontEnd) MeasurementsPut(w http.ResponseWriter, r *http.Request) {
 	} else {
 		err = fe.DataHandler.SetMeasurements(ms)
 		if (err != nil) { 
-			fmt.Fprintln(w,"Failed")
+			fmt.Fprintln(w,"Failed, Check input.")
 		}
 	}
 }
 
 func (fe FrontEnd) ShowLocationsClusters(w http.ResponseWriter, r *http.Request) {
 
-	locInfos, _ := fe.DataHandler.GetLocationsClusters() 
+	locInfos, err := fe.DataHandler.GetLocationsClusters() 
+	if err != nil {
+		log.Println(err)
+	}
 
         w.Header().Set("Content-Type", "application/json; charset=UTF-8")
         w.WriteHeader(http.StatusOK)
