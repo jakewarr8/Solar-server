@@ -92,7 +92,7 @@ func (d DB) SetMeasurements(ms Measurements) (err error) {
 	
 	for _,m := range ms {
 		json, _ := m.RegistersToJson()
-		_, err = stmt.Exec(m.Location, "0001", m.Time, json)
+		_, err = stmt.Exec(m.Location, "0002", m.Time, json)
 		if err != nil {
 			log.Println(err)
 			return
@@ -103,7 +103,7 @@ func (d DB) SetMeasurements(ms Measurements) (err error) {
 }
 
 func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
-	var query = "SELECT location, clusterID FROM measurements GROUP BY location, clusterID;"
+	var query = "SELECT location, serial FROM measurements GROUP BY location, serial;"
 	rows, err := d.Query(query)
 	
 	if err != nil {
@@ -116,9 +116,9 @@ func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
 	
         for rows.Next() {        
 		var l string 
-		var clusterid int64
+		var serial string
                 
-		err = rows.Scan(&l, &clusterid)
+		err = rows.Scan(&l, &serial)
                 //log.Println(l,clusterid)
 		
 
@@ -128,12 +128,12 @@ func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
 		} else {
 			locinfo, ok := x[l]
 			if ok {
-				locinfo.ClusterIDs = append(locinfo.ClusterIDs,clusterid)
+				locinfo.Serials = append(locinfo.Serials,serial)
 				x[l] = locinfo
 				log.Println(x)
 			} else {
 				locinfo.LocationAbbrv = l
-				locinfo.ClusterIDs = append(locinfo.ClusterIDs,clusterid)
+				locinfo.Serials = append(locinfo.Serials,serial)
 				x[l] = locinfo
 				//log.Println(x)
 			}

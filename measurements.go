@@ -33,7 +33,7 @@ type Measurements []Measurement
 
 type LocationInfo struct {
 	LocationAbbrv	string		`json:"location"`
- 	ClusterIDs	[]int64		`json:"clusterids"`
+ 	Serials		[]string	`json:"serials"`
 }
 
 type LocationsInfos []LocationInfo
