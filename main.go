@@ -15,7 +15,7 @@ func main() {
 
         defer db.Close(); //????
 
-	NewFetcher()
+	NewFetcher(db)
 
 	router := NewRouter(db)
 	log.Fatal(http.ListenAndServe(":8080", router))

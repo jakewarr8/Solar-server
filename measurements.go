@@ -1,22 +1,31 @@
 package main
 
 import (
-	//"database/sql"
 	"time"
-	"encoding/xml"
+	"encoding/json"
 )
 
+type KeyPair struct {
+        Nk      string          `json:"name"`  //CT1 L1F L1V
+        Tk      string          `json:"type"`  //I,V,F
+        Data    float64         `json:"data"`
+}
+
 type Measurement struct {
-	ClusterID 	int64		`json:"clusterid"`
 	Time 		time.Time	`json:"time"`
 	Location 	string		`json:"location"`
-	Voltage		float64 	`json:"voltage"`
-	Ampere		float64		`json:"ampere"`
-	Humidity	float32		`json:"humidity"`
-	Temp		float32		`json:"temp"`
-	AngleTheta	float32		`json:"theta"`
-	AngleAlpha	float32		`json:"alpha"`
-	SpTemp		float32		`json:"sptemp"`
+	Registers	[]KeyPair	`json:"registers"`
+}
+
+func (m Measurement) RegistersToJson() ([]byte, error) {
+	jsonString, err := json.Marshal(m.Registers)
+	return jsonString, err
+}
+
+//How to refence self
+func (m *Measurement) ParseRegisters(j []byte) (error) {
+	err := json.Unmarshal(j, &m.Registers)
+	return err
 }
 
 type Measurements []Measurement
@@ -30,16 +39,15 @@ type LocationInfo struct {
 type LocationsInfos []LocationInfo
 
 
+//XML Structs
+type KeyPairx struct {
+        Nk      string          `xml:"n,attr"`  //CT1 L1F L1V
+        Tk      string          `xml:"t,attr"`  //I,V
+        Data    float64         `xml:"i"`
+}
 
 type Measurementx struct {
-	LVs		[]KeyPair	`xml:"r"`	
-	ts		int64		`xml:"ts"`
-	XMLName		xml.Name	`xml:"data"`
-
+	KeyPairs	[]KeyPairx	`xml:"r"`	
+	Time		int64		`xml:"ts"`
 }
 
-type KeyPair struct {
-	nk	string		`xml:"n,attr"`	//CT1
-	tk 	string		`xml:"t,attr"`	//I,V
-	data	float64		`xml:"v>i"`	
-}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
-	"strconv"
 	"log"
 	"time"
 )
@@ -21,7 +20,7 @@ type Routes []Route
 
 type DataHandler interface {
 	GetMeasurement(string, int64, time.Time) (Measurement, error)
-	GetMeasurements(string, int64, time.Time, time.Time) (Measurements, error)
+	GetMeasurements(l string, s string, st time.Time, et time.Time) (ms Measurements, err error)
 	SetMeasurements(Measurements) (error)
 	GetLocationsClusters ()(locInfos LocationsInfos,  err error)
 }
@@ -44,23 +43,11 @@ func NewRouter(db DataHandler) *mux.Router {
 			MeasurementsIndex,
 		},
 		Route{
-			"MeasurementShow",
-			"GET",
-			"/measurements/location/{location}/clusterid/{clusterid}/stime/{stime}",
-			fe.MeasurementShow,
-		},
-		Route{
                         "MeasurementsShow",
                         "GET",
-                        "/measurements/location/{location}/clusterid/{clusterid}/start/{start}/end/{end}",
+                        "/measurements/location/{location}/serial/{serial}/start/{start}/end/{end}",
                         fe.MeasurementsShow,
                 },
-		Route{
-			"MeasurementsPut",
-			"PUT",
-			"/measurements/insert",
-			fe.MeasurementsPut,
-		},
 		Route{
                         "ShowLocationsClusters",
                         "GET",
@@ -87,6 +74,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 //2014-12-12 14:07:00
 func MeasurementsIndex(w http.ResponseWriter, r *http.Request) {
+	/*
 	measurements := Measurements{
 		Measurement{ClusterID: 1, 
 			    Time: time.Date(2014, time.December, 12, 14, 07, 00, 0, time.UTC),
@@ -111,63 +99,25 @@ func MeasurementsIndex(w http.ResponseWriter, r *http.Request) {
                             SpTemp: 25.6,
                             },
 	}
-	
+	*/
 		
 	//Added StatusCode for JSON	
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-    	w.WriteHeader(http.StatusOK)	
+	//w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    	//w.WriteHeader(http.StatusOK)	
 	
-	if err := json.NewEncoder(w).Encode(measurements); err != nil {
-		panic(err)
-	}
+	//if err := json.NewEncoder(w).Encode(measurements); err != nil {
+	//	panic(err)
+	//}
+	
 }
 
 type FrontEnd struct {
 	DataHandler
 }
 
-func (fe FrontEnd) MeasurementShow(w http.ResponseWriter, r *http.Request) {
-   	
-	log.Println("Hello")
-
-	vars := mux.Vars(r)
-    	l := vars["location"]
-        
-	id , err := strconv.ParseInt(vars["clusterid"],10,64)
-	if err != nil {
-                log.Panic(err)
-        } 
-		
-	time, err := time.Parse(time.RFC3339, vars["stime"])
-	if err != nil {
-                log.Panic(err)
-        }
-	
-    	//fmt.Fprintln(w, "Todo show:", measurementId)
-        
-	m, err := fe.DataHandler.GetMeasurement(l,id,time)
-        if err != nil {
-               	fmt.Fprintln(w,"No Measurement Found.")
-       	}
- 
-	//fmt.Fprintln(w,m)
-	
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-        w.WriteHeader(http.StatusOK)
-
-        if err := json.NewEncoder(w).Encode(m); err != nil {
-                panic(err)
-        }
-}
-
 func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
         l := vars["location"]
-
-        id , err := strconv.ParseInt(vars["clusterid"],10,64)
-        if err != nil {
-                log.Panic(err)
-        }
 
         start, err := time.Parse(time.RFC3339, vars["start"])
         if err != nil {
@@ -181,7 +131,7 @@ func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
 
         //fmt.Fprintln(w, "Todo show:", measurementId)
 
-        ms, err := fe.DataHandler.GetMeasurements(l,id,start,end)
+        ms, err := fe.DataHandler.GetMeasurements(l,"0001",start,end)
         if err != nil {
                 fmt.Fprintln(w,"No Measurement Found.")
         }
@@ -192,20 +142,6 @@ func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
         if err := json.NewEncoder(w).Encode(ms); err != nil {
                 panic(err)
         }
-}
-
-func (fe FrontEnd) MeasurementsPut(w http.ResponseWriter, r *http.Request) {
-	var ms Measurements
-	dec := json.NewDecoder(r.Body)
-	
-	if err := dec.Decode(&ms); err != nil {
-		log.Println(err)
-	} else {
-		err = fe.DataHandler.SetMeasurements(ms)
-		if (err != nil) { 
-			fmt.Fprintln(w,"Failed, Check input.")
-		}
-	}
 }
 
 func (fe FrontEnd) ShowLocationsClusters(w http.ResponseWriter, r *http.Request) {
