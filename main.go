@@ -3,6 +3,7 @@ package main
 import (
 	"log"	
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -15,8 +16,13 @@ func main() {
 
         defer db.Close(); //????
 
-	NewFetcher(db)
-
+	ticker := time.NewTicker(time.Minute)
+	go func() {
+        	for _ = range ticker.C {
+			NewFetcher(db)
+       		}
+	}()
+	
 	router := NewRouter(db)
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

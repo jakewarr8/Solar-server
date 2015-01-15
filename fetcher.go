@@ -32,7 +32,7 @@ func NewFetcher(db DataHandler) {
 		//fmt.Println(m.Registers)
 	}
 	ms := Measurements{m}
-	fmt.Println(ms)
+	//fmt.Println(ms)
 	
 	db.SetMeasurements(ms)			
 	

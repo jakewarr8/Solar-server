@@ -19,7 +19,6 @@ type Route struct {
 type Routes []Route
 
 type DataHandler interface {
-	GetMeasurement(string, int64, time.Time) (Measurement, error)
 	GetMeasurements(l string, s string, st time.Time, et time.Time) (ms Measurements, err error)
 	SetMeasurements(Measurements) (error)
 	GetLocationsClusters ()(locInfos LocationsInfos,  err error)
@@ -121,27 +120,28 @@ func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
 
         start, err := time.Parse(time.RFC3339, vars["start"])
         if err != nil {
-                log.Panic(err)
+                log.Println(err)
         }
 
         end, err := time.Parse(time.RFC3339, vars["end"])
         if err != nil {
-                log.Panic(err)
+                log.Println(err)
         }
 
         //fmt.Fprintln(w, "Todo show:", measurementId)
 
-        ms, err := fe.DataHandler.GetMeasurements(l,"0001",start,end)
-        if err != nil {
+        ms, err := fe.DataHandler.GetMeasurements(l,vars["serial"],start,end)
+        if err != nil || ms == nil{
                 fmt.Fprintln(w,"No Measurement Found.")
-        }
+        } else {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+        	w.WriteHeader(http.StatusOK)
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-        w.WriteHeader(http.StatusOK)
-
-        if err := json.NewEncoder(w).Encode(ms); err != nil {
-                panic(err)
-        }
+        	if err := json.NewEncoder(w).Encode(ms); err != nil {
+                	log.Println(err)
+			fmt.Fprintln(w,"No Measurement Found...")
+        	}
+	}
 }
 
 func (fe FrontEnd) ShowLocationsClusters(w http.ResponseWriter, r *http.Request) {

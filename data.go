@@ -16,23 +16,8 @@ func NewOpen(dt string, c string) (DB, error) {
         return DB{db}, err
 }
 
-func (d DB) GetMeasurement(l string, id int64, t time.Time) (Measurement, error) {
-	/*
-	var (
-		query = "SELECT V, I, humidity, temp, angleTheta, angleAlpha, spTemp FROM measurements WHERE location=? AND clusterID=? AND time=?;"
-		m = Measurement{ClusterID: id, Time: t, Location: l}
-		
-	)
-	err := d.QueryRow(query, l, id, t).Scan(&m.Voltage, &m.Ampere, &m.Humidity, &m.Temp, &m.AngleTheta, &m.AngleAlpha, &m.SpTemp)
-	if err != nil {
-		return Measurement{}, err
-	}
-	*/
-	return Measurement{}, nil
-}
-
 func (d DB) GetMeasurements(l string, s string, st time.Time, et time.Time) (ms Measurements, err error) {
-	
+	log.Println("GetMS",1,s,st,et)	
 	var (
                 query = "SELECT time, data FROM measurements WHERE location=? AND serial=? AND time>=? AND time<?;"
 	)
@@ -40,7 +25,7 @@ func (d DB) GetMeasurements(l string, s string, st time.Time, et time.Time) (ms 
 	rows, err := d.Query(query, l, s, st, et)
 	if err != nil {
 		log.Println(err)
-		return
+		return ms, err
 	}
 	defer rows.Close()
 	
@@ -49,7 +34,7 @@ func (d DB) GetMeasurements(l string, s string, st time.Time, et time.Time) (ms 
 		var t string//[]uint8
 		var rg []byte
 		err = rows.Scan(&t, &rg)	
-		log.Println(t)
+		//log.Println(t)
 		if err != nil {
                 	log.Println(err)
 		} else {
@@ -92,7 +77,7 @@ func (d DB) SetMeasurements(ms Measurements) (err error) {
 	
 	for _,m := range ms {
 		json, _ := m.RegistersToJson()
-		_, err = stmt.Exec(m.Location, "0002", m.Time, json)
+		_, err = stmt.Exec(m.Location, "0001", m.Time, json)
 		if err != nil {
 			log.Println(err)
 			return
