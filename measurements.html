@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Solar</title>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+	
+</head>
+
+<body>
+	
+	<div>
+		<select name="locations" id="slct1">
+		</select>
+	</div>
+	
+	 <a href="#" id="clickme">Get Json</a>
+	
+	<script>
+		function populate() {
+			var json = '[{"location":"SA","serials":["0001"]},{"location":"SM","serials":["0001","0002"]}]';
+			obj = JSON.parse(json);
+					
+			var s1 = document.getElementById("slct1");
+			s1.innerHTML = "";
+						
+			for(var loc in obj) {
+				var location = obj[loc].location;
+				var serials = obj[loc].serials;
+				
+				var newOptGroup = document.createElement("optgroup");
+				newOptGroup.label = location;
+				s1.options.add(newOptGroup);
+				
+				for(var ser in serials) {
+					var serial = serials[ser];
+					
+					var newOption = document.createElement("option");
+					newOption.vaule = "#";
+					newOption.innerHTML = serial;
+					newOptGroup.appendChild(newOption);
+				}
+			}	
+		}
+		
+		
+		
+		populate();
+		//alert(obj[0].location);
+	</script>
+		
+	<script>
+		$(function() {
+			$('#clickme').click(function() {
+				alert('got')
+				var url = 'http://localhost:8080/locationsInfo';
+	
+				$.getJSON(url, function(data){
+			
+					var items = [];
+		
+					$.each(data, function(key, val) {
+						items.push('<li id="' + key + '">' + val + '</li>');
+		
+					});
+		
+					$('<ul/>', {
+						'class': 'interest-list',
+						html: items.join('')
+					}).appendTo('body');
+		
+				});
+
+		
+				// 		$.ajax({
+				// 			type: 'GET',
+				// 			url: url,
+				// 			async: false,
+				// 			jsonpCallback: 'jsonCallback',
+				// 			contentType: "application/json",
+				// 			dataType: 'jsonp',
+				// 			success: function(json) {
+				// 				console.dir(json.sites);
+				// 			},
+				// 			error: function(e) {
+				// 				console.log(e.message);
+				// 			}
+				// 		});
+			});
+		});
+	</script>
+
+
+</body>
+</html>

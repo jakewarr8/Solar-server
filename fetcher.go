@@ -10,7 +10,11 @@ import (
 
 func NewFetcher(db DataHandler) {
 	
-	r, _ := http.Get("http://egauge7055.egaug.es/cgi-bin/egauge?inst&v1")
+	r, err := http.Get("http://egauge7055.egaug.es/cgi-bin/egauge?inst&v1")
+	if err != nil {
+		fmt.Println("Egauge Appers to be down!!!")
+		return;
+	}
 	defer r.Body.Close()	
 	
 	contents, err := ioutil.ReadAll(r.Body)
@@ -24,7 +28,7 @@ func NewFetcher(db DataHandler) {
 //	fmt.Println(mx)
 
 	m := Measurement{} //ToStore
-	m.Location= "SM"
+	m.Location= "SA"
 	m.Time = time.Now().Local()		
 	for _,e := range mx.KeyPairs {
 		kp := KeyPair{Nk: e.Nk, Tk: e.Tk, Data: e.Data,}

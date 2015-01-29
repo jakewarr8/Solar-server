@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"time"
+	"io/ioutil"
 )
 
 type Route struct {
@@ -72,42 +73,28 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hi!")
 }
 //2014-12-12 14:07:00
-func MeasurementsIndex(w http.ResponseWriter, r *http.Request) {
-	/*
-	measurements := Measurements{
-		Measurement{ClusterID: 1, 
-			    Time: time.Date(2014, time.December, 12, 14, 07, 00, 0, time.UTC),
-        		    Location: "SM",
-			    Voltage: 3.77432,
-			    Ampere: 1.83551,
-			    Humidity: 0.18,
-			    Temp: 18.3,
-			    AngleTheta: 0.00,
-			    AngleAlpha: 45.0,
-			    SpTemp: 25.6,
-			    },
-		Measurement{ClusterID: 2,
-                            Time: time.Date(2014, time.December, 16, 12, 53, 0, 0, time.UTC),
-                            Location: "SA",
-                            Voltage: 3.77432,
-                            Ampere: 1.83551,
-                            Humidity: 0.18,
-                            Temp: 18.3,
-                            AngleTheta: 0.00,
-                            AngleAlpha: 45.0,
-                            SpTemp: 25.6,
-                            },
+type Page struct {
+	Title string
+	Body  []byte
+}
+ 
+func loadPage(title string) (*Page, error) {
+    filename := title + ".html"
+    body, err := ioutil.ReadFile(filename)
+    if err != nil {
+        return nil, err
+    }
+    return &Page{Title: title, Body: body}, nil
+}
+  
+func MeasurementsIndex(w http.ResponseWriter, r *http.Request) {	
+	p, err := loadPage("measurements")
+	if err != nil {
+		fmt.Fprintln(w,"Error Loading Page ^_^. Try Again Later.") 
+		return
 	}
-	*/
-		
-	//Added StatusCode for JSON	
-	//w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-    	//w.WriteHeader(http.StatusOK)	
-	
-	//if err := json.NewEncoder(w).Encode(measurements); err != nil {
-	//	panic(err)
-	//}
-	
+	bs := string(p.Body[:])
+	fmt.Fprintf(w,bs)
 }
 
 type FrontEnd struct {
