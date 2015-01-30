@@ -2,7 +2,18 @@
 <html>
 <head>
 	<title>Solar</title>
+	<meta charset="utf-8">
+	
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+	
 	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+	<script>
+	$(function() {
+	$( "#sdatepicker" ).datepicker();
+	$( "#edatepicker" ).datepicker();
+	});
+	</script>
 	
 </head>
 
@@ -14,12 +25,12 @@
 	</div>
 	
 	 <a href="#" id="clickme">Get Json</a>
+	 
+	 <p>StartDate: <input type="text" id="sdatepicker"></p>
+	 <p>EndDate: <input type="text" id="edatepicker"></p>
 	
 	<script>
-		function populate() {
-			var json = '[{"location":"SA","serials":["0001"]},{"location":"SM","serials":["0001","0002"]}]';
-			obj = JSON.parse(json);
-					
+		function populate(obj) {	
 			var s1 = document.getElementById("slct1");
 			s1.innerHTML = "";
 						
@@ -41,50 +52,15 @@
 				}
 			}	
 		}
-		
-		
-		
-		populate();
-		//alert(obj[0].location);
 	</script>
 		
 	<script>
 		$(function() {
 			$('#clickme').click(function() {
-				alert('got')
 				var url = 'http://localhost:8080/locationsInfo';
-	
 				$.getJSON(url, function(data){
-			
-					var items = [];
-		
-					$.each(data, function(key, val) {
-						items.push('<li id="' + key + '">' + val + '</li>');
-		
-					});
-		
-					$('<ul/>', {
-						'class': 'interest-list',
-						html: items.join('')
-					}).appendTo('body');
-		
+					populate(data);
 				});
-
-		
-				// 		$.ajax({
-				// 			type: 'GET',
-				// 			url: url,
-				// 			async: false,
-				// 			jsonpCallback: 'jsonCallback',
-				// 			contentType: "application/json",
-				// 			dataType: 'jsonp',
-				// 			success: function(json) {
-				// 				console.dir(json.sites);
-				// 			},
-				// 			error: function(e) {
-				// 				console.log(e.message);
-				// 			}
-				// 		});
 			});
 		});
 	</script>
