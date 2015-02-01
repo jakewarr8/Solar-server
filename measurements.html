@@ -35,7 +35,7 @@
 				
 				var newOptGroup = document.createElement("optgroup");
 				newOptGroup.label = location;
-				s1.options.add(newOptGroup);
+				s1.appendChild(newOptGroup);
 				
 				for(var ser in serials) {
 					var serial = serials[ser];
@@ -52,14 +52,33 @@
 	
 	<script>
 		function load(measurements) {
+			var regsMap = {};
 			for(var meas in measurements) {
 				var time = measurements[meas].time;
 				var regs = measurements[meas].registers;
 				
-				
 				for(reg in regs) {
+					if (regs[reg].name in regsMap) {
+						var regDict = regsMap[regs[reg].name];
+						var regA = regDict.regArray;
+						var regMeas = {time:time, data:regs[reg].data};
+						regA.push(regMeas);
 					
+					} else {
+						var regA = new Array();
+						
+						var regMeas = {time:time, data:regs[reg].data};
+						regA.push(regMeas);
+						
+						var regDict = {name:regs[reg].name, type:regs[reg].type, regArray:regA}
+						
+						regsMap[regs[reg].name]=regDict
+					}
+
 				}
+			}
+			for (var i in regsMap) {
+				console.log(regsMap[i]); //For testing
 			}
 		}
 	</script>
@@ -80,7 +99,7 @@
 	<script>
 		$(function() {
 			$(function() {
-				var url = 'http://localhost:8080/measurements/location/SM/serial/0001/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z';
+				var url = 'http://localhost:8080/measurements/location/SA/serial/0001/start/2014-12-16T05:07:00Z/end/2015-02-10T14:07:00Z';
 				$.getJSON(url, function(data){
 					load(data);
 				});
