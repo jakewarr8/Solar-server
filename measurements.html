@@ -19,15 +19,10 @@
 
 <body>
 	
-	<div>
-		<select name="locations" id="slct1">
-		</select>
-	</div>
+	<p>Select Logger: <select name="locations" id="slct1"> </select> </p>
 	
-	 <a href="#" id="clickme">Get Json</a>
-	 
-	 <p>StartDate: <input type="text" id="sdatepicker"></p>
-	 <p>EndDate: <input type="text" id="edatepicker"></p>
+	<p>Start Date: <input type="text" id="sdatepicker"> at: <input type="text"> </p>
+	<p>End Date: <input type="text" id="edatepicker"> at: <input type="text"> </p>
 	
 	<script>
 		function populate(obj) {	
@@ -53,10 +48,26 @@
 			}	
 		}
 	</script>
+	
+	
+	<script>
+		function load(measurements) {
+			for(var meas in measurements) {
+				var time = measurements[meas].time;
+				var regs = measurements[meas].registers;
+				
+				
+				for(reg in regs) {
+					
+				}
+			}
+		}
+	</script>
+		
 		
 	<script>
 		$(function() {
-			$('#clickme').click(function() {
+			$(function() {
 				var url = 'http://localhost:8080/locationsInfo';
 				$.getJSON(url, function(data){
 					populate(data);
@@ -64,7 +75,18 @@
 			});
 		});
 	</script>
-
+	
+	
+	<script>
+		$(function() {
+			$(function() {
+				var url = 'http://localhost:8080/measurements/location/SM/serial/0001/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z';
+				$.getJSON(url, function(data){
+					load(data);
+				});
+			});
+		});
+	</script>
 
 </body>
 </html>
