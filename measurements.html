@@ -2,27 +2,15 @@
 <html>
 <head>
 	<title>Solar</title>
-	<meta charset="utf-8">
-	
-	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
-	
 	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
-	<script>
-	$(function() {
-	$( "#sdatepicker" ).datepicker();
-	$( "#edatepicker" ).datepicker();
-	});
-	</script>
-	
 </head>
 
 <body>
 	
 	<p>Select Logger: <select name="locations" id="slct1"> </select> </p>
 	
-	<p>Start Date: <input type="text" id="sdatepicker"> at: <input type="text"> </p>
-	<p>End Date: <input type="text" id="edatepicker"> at: <input type="text"> </p>
+	<p>Start Date: <input type="text"> at: <input type="text"> </p>
+	<p>End Date: <input type="text"> at: <input type="text"> </p>
 	
 	<script>
 		function populate(obj) {	
@@ -87,7 +75,7 @@
 	<script>
 		$(function() {
 			$(function() {
-				var url = 'http://localhost:8080/locationsInfo';
+				var url = '/locationsInfo';
 				$.getJSON(url, function(data){
 					populate(data);
 				});
@@ -99,7 +87,7 @@
 	<script>
 		$(function() {
 			$(function() {
-				var url = 'http://localhost:8080/measurements/location/SA/serial/0001/start/2014-12-16T05:07:00Z/end/2015-02-10T14:07:00Z';
+				var url = '/measurements/location/SA/serial/0001/start/2014-12-16T05:07:00Z/end/2015-02-10T14:07:00Z';
 				$.getJSON(url, function(data){
 					load(data);
 				});

@@ -37,10 +37,10 @@ func NewRouter(db DataHandler) *mux.Router {
 			Index,
 	    	},
 		Route{
-			"MeasurementsIndex",
+			"HomeIndex",
 			"GET",
-			"/measurements",
-			MeasurementsIndex,
+			"/home/{path}",
+			HomeIndex,
 		},
 		Route{
                         "MeasurementsShow",
@@ -59,10 +59,6 @@ func NewRouter(db DataHandler) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
     	for _, route := range routes {
-		//Logger
-		// var handler http.Handler
-		// handler = route.HandlerFunc
-		// handler = Logger(handler, route.Name)
 		router.Methods(route.Method).Path(route.Pattern).Name(route.Name).Handler(route.HandlerFunc)
     	}
 
@@ -70,16 +66,16 @@ func NewRouter(db DataHandler) *mux.Router {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hi!")
+	fmt.Fprintln(w, "Welcome!")
 }
-//2014-12-12 14:07:00
+
 type Page struct {
 	Title string
 	Body  []byte
 }
  
 func loadPage(title string) (*Page, error) {
-    filename := title + ".html"
+    filename := title
     body, err := ioutil.ReadFile(filename)
     if err != nil {
         return nil, err
@@ -87,14 +83,16 @@ func loadPage(title string) (*Page, error) {
     return &Page{Title: title, Body: body}, nil
 }
   
-func MeasurementsIndex(w http.ResponseWriter, r *http.Request) {	
-	p, err := loadPage("measurements")
+func HomeIndex(w http.ResponseWriter, r *http.Request) {	
+	vars := mux.Vars(r)
+	title := vars["path"]
+	p, err := loadPage(title)
 	if err != nil {
-		fmt.Fprintln(w,"Error Loading Page ^_^. Try Again Later.") 
+		fmt.Fprintln(w,"Error Loading Page ^_^. Try Again Later.")
 		return
 	}
 	bs := string(p.Body[:])
-	fmt.Fprintf(w,bs)
+	fmt.Fprintf(w,bs)	
 }
 
 type FrontEnd struct {

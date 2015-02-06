@@ -17,10 +17,8 @@ func NewOpen(dt string, c string) (DB, error) {
 }
 
 func (d DB) GetMeasurements(l string, s string, st time.Time, et time.Time) (ms Measurements, err error) {
-	log.Println("GetMS",1,s,st,et)	
-	var (
-                query = "SELECT time, data FROM measurements WHERE location=? AND serial=? AND time>=? AND time<?;"
-	)
+	log.Println("GetMS",l,s,st,et)	
+        var query = "SELECT time, data FROM measurements WHERE location=? AND serial=? AND time>=? AND time<?;"
 	//var rows sql.Rows
 	rows, err := d.Query(query, l, s, st, et)
 	if err != nil {
@@ -88,6 +86,7 @@ func (d DB) SetMeasurements(ms Measurements) (err error) {
 }
 
 func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
+	log.Println("GetLocationsClusters")
 	var query = "SELECT location, serial FROM measurements GROUP BY location, serial;"
 	rows, err := d.Query(query)
 	
@@ -115,7 +114,7 @@ func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
 			if ok {
 				locinfo.Serials = append(locinfo.Serials,serial)
 				x[l] = locinfo
-				log.Println(x)
+				//log.Println(x)
 			} else {
 				locinfo.LocationAbbrv = l
 				locinfo.Serials = append(locinfo.Serials,serial)
