@@ -1,99 +1,183 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<title>Solar</title>
-	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <title>Solar</title>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 
 <body>
-	
-	<p>Select Logger: <select name="locations" id="slct1"> </select> </p>
-	
-	<p>Start Date: <input type="text"> at: <input type="text"> </p>
-	<p>End Date: <input type="text"> at: <input type="text"> </p>
-	
-	<script>
-		function populate(obj) {	
-			var s1 = document.getElementById("slct1");
-			s1.innerHTML = "";
-						
-			for(var loc in obj) {
-				var location = obj[loc].location;
-				var serials = obj[loc].serials;
-				
-				var newOptGroup = document.createElement("optgroup");
-				newOptGroup.label = location;
-				s1.appendChild(newOptGroup);
-				
-				for(var ser in serials) {
-					var serial = serials[ser];
-					
-					var newOption = document.createElement("option");
-					newOption.vaule = "#";
-					newOption.innerHTML = serial;
-					newOptGroup.appendChild(newOption);
-				}
-			}	
-		}
-	</script>
-	
-	
-	<script>
-		function load(measurements) {
-			var regsMap = {};
-			for(var meas in measurements) {
-				var time = measurements[meas].time;
-				var regs = measurements[meas].registers;
-				
-				for(reg in regs) {
-					if (regs[reg].name in regsMap) {
-						var regDict = regsMap[regs[reg].name];
-						var regA = regDict.regArray;
-						var regMeas = {time:time, data:regs[reg].data};
-						regA.push(regMeas);
-					
-					} else {
-						var regA = new Array();
-						
-						var regMeas = {time:time, data:regs[reg].data};
-						regA.push(regMeas);
-						
-						var regDict = {name:regs[reg].name, type:regs[reg].type, regArray:regA}
-						
-						regsMap[regs[reg].name]=regDict
-					}
 
-				}
-			}
-			for (var i in regsMap) {
-				console.log(regsMap[i]); //For testing
-			}
-		}
-	</script>
-		
-		
-	<script>
-		$(function() {
-			$(function() {
-				var url = '/locationsInfo';
-				$.getJSON(url, function(data){
-					populate(data);
-				});
-			});
-		});
-	</script>
-	
-	
-	<script>
-		$(function() {
-			$(function() {
-				var url = '/measurements/location/SA/serial/0001/start/2014-12-16T05:07:00Z/end/2015-02-10T14:07:00Z';
-				$.getJSON(url, function(data){
-					load(data);
-				});
-			});
-		});
-	</script>
+    <p>Select Logger:
+        <select name="locations" id="slct1"> </select>
+    </p>
+
+
+
+    <p>
+        <br> Beginning Date (yyyy/mm/dd):
+        <input type="text" id="beginDate">
+        <br> Beginning Time - 24hr (hh:mm):
+        <input type="text" id="beginTime">
+    </p>
+    <p>
+        <br> Ending Date (yyyy/mm/dd):
+        <input type="text" id="endDate">
+
+        <br>Ending Time - 24hr (hh:mm):
+        <input type="text" id="endTime">
+        <br>
+    </p>
+    <input type="submit" value="Submit" onclick="submitUrlRequest()">
+
+    <p>Select Register:
+        <select name="Registers" id="reg1"> </select>
+    </p>
+
+    <script>
+    function submitUrlRequest() {
+        var serial = document.getElementById("slct1").value;
+        var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
+        var beginDate = document.getElementById('beginDate').value;
+        var beginTime = document.getElementById('beginTime').value;
+        var endDate = document.getElementById('endDate').value;
+        var endTime = document.getElementById('endTime').value;
+
+        beginDate = beginDate.replace(/\//g,'-');
+        endDate = endDate.replace(/\//g,'-');
+
+        var urlEx = "/measurements/location/_location/serial/_serial/start/begindateTbegintimeZ/end/enddateTendtimeZ";
+
+        urlEx = urlEx.replace("_location", location);
+        urlEx = urlEx.replace("_serial", serial);
+        urlEx = urlEx.replace("begindate", beginDate);
+        urlEx = urlEx.replace("begintime", beginTime);
+        urlEx = urlEx.replace("enddate", endDate);
+        urlEx = urlEx.replace("endtime", endTime);
+        
+        var requestUrl = urlEx;
+
+        alert(requestUrl);
+
+        sendRequest(requestUrl);
+
+    }
+    </script>
+
+
+
+
+    <script>
+    function populate(obj) {
+        var s1 = document.getElementById("slct1");
+        s1.innerHTML = "";
+
+        for (var loc in obj) {
+            var location = obj[loc].location;
+            var serials = obj[loc].serials;
+
+            var newOptGroup = document.createElement("optgroup");
+            newOptGroup.label = location;
+            s1.appendChild(newOptGroup);
+
+            for (var ser in serials) {
+                var serial = serials[ser];
+
+                var newOption = document.createElement("option");
+                newOption.value = serial;
+                newOption.innerHTML = serial;
+                newOptGroup.appendChild(newOption);
+            }
+        }
+    }
+    </script>
+
+    <script>
+    function populateRegisters(regsMap) {
+        var s1 = document.getElementById("reg1");
+        s1.innerHTML = "";
+
+        for (var i in regsMap) {
+            console.log(regsMap[i]); //For testing
+
+            var newOption = document.createElement("option");
+            newOption.innerHTML = regsMap[i].name;
+            newOption.value = regsMap[i];
+            s1.appendChild(newOption);
+        }
+
+        
+    }
+    </script>
+
+
+    <script>
+    function load(measurements) {
+        var regsMap = {};
+        for (var meas in measurements) {
+            var time = measurements[meas].time;
+            var regs = measurements[meas].registers;
+
+            for (reg in regs) {
+                if (regs[reg].name in regsMap) {
+                    var regDict = regsMap[regs[reg].name];
+                    var regA = regDict.regArray;
+                    var regMeas = {
+                        time: time,
+                        data: regs[reg].data
+                    };
+                    regA.push(regMeas);
+
+                } else {
+                    var regA = new Array();
+
+                    var regMeas = {
+                        time: time,
+                        data: regs[reg].data
+                    };
+                    regA.push(regMeas);
+
+                    var regDict = {
+                        name: regs[reg].name,
+                        type: regs[reg].type,
+                        regArray: regA
+                    }
+
+                    regsMap[regs[reg].name] = regDict
+                }
+
+            }
+        }
+        // for (var i in regsMap) {
+        //     console.log(regsMap[i]); //For testing
+        // }
+        populateRegisters(regsMap);
+    }
+    </script>
+
+
+    <script>
+    $(function() {
+        $(function() {
+            var url = '/locationsInfo';
+            $.getJSON(url, function(data) {
+                populate(data);
+            });
+        });
+    });
+    </script>
+
+
+    <script>
+    function sendRequest(url){
+        $(function(){
+            $.getJSON(url, function(data) {
+                load(data);
+            });
+        });
+    };
+    </script>
 
 </body>
+
 </html>
