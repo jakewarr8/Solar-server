@@ -4,9 +4,11 @@
 <head>
     <title>Solar</title>
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
 </head>
 
 <body>
+
 
     <p>Select Logger:
         <select name="locations" id="slct1"> </select>
@@ -31,8 +33,50 @@
     <input type="submit" value="Submit" onclick="submitUrlRequest()">
 
     <p>Select Register:
-        <select name="Registers" id="reg1"> </select>
+        <select name="Registers" id="reg1" onchange="showChart(this.value)"> </select>
     </p>
+
+
+    <div id="Chart" style="width:100%; height:400px;"></div>
+
+
+    <script>
+    function reloadChart(data, yAxisName) {
+
+        $(function() {
+            $('#Chart').highcharts({
+                chart: {
+                    type: 'line'
+                },
+                title: {
+                    text: (yAxisName + " Chart")
+                },
+                xAxis: {
+                    title: {
+                        text: "Time"
+                    },
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%e. %b',
+                        year: '%b'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: yAxisName
+                    }
+                },
+                series: [{
+                    name: 'Data',
+                    data: data
+                }]
+            });
+        });
+
+    }
+    </script>
+
+
 
     <script>
     function submitUrlRequest() {
@@ -43,8 +87,8 @@
         var endDate = document.getElementById('endDate').value;
         var endTime = document.getElementById('endTime').value;
 
-        beginDate = beginDate.replace(/\//g,'-');
-        endDate = endDate.replace(/\//g,'-');
+        beginDate = beginDate.replace(/\//g, '-');
+        endDate = endDate.replace(/\//g, '-');
 
         var urlEx = "/measurements/location/_location/serial/_serial/start/begindateTbegintimeZ/end/enddateTendtimeZ";
 
@@ -54,7 +98,7 @@
         urlEx = urlEx.replace("begintime", beginTime);
         urlEx = urlEx.replace("enddate", endDate);
         urlEx = urlEx.replace("endtime", endTime);
-        
+
         var requestUrl = urlEx;
 
         alert(requestUrl);
@@ -98,22 +142,24 @@
         s1.innerHTML = "";
 
         for (var i in regsMap) {
-            console.log(regsMap[i]); //For testing
+            //console.log(regsMap[i]); //For testing
 
             var newOption = document.createElement("option");
             newOption.innerHTML = regsMap[i].name;
-            newOption.value = regsMap[i];
+            newOption.value = regsMap[i].name;
             s1.appendChild(newOption);
         }
 
-        
+
     }
     </script>
 
 
     <script>
+    var regsMap;
+
     function load(measurements) {
-        var regsMap = {};
+        regsMap = {};
         for (var meas in measurements) {
             var time = measurements[meas].time;
             var regs = measurements[meas].registers;
@@ -148,10 +194,28 @@
 
             }
         }
-        // for (var i in regsMap) {
-        //     console.log(regsMap[i]); //For testing
-        // }
+        for (var i in regsMap) {
+            console.log(regsMap[i]); //For testing
+        }
         populateRegisters(regsMap);
+    }
+
+    ///TODO
+    function showChart(key) {
+
+        //console.log(key);
+        var array1 = regsMap[key].regArray;
+        var pointsArray = new Array();
+        //alert(array1);
+        array1.forEach(function(arrayItem) {
+            var someDate = new Date(arrayItem.time);
+            someDate = someDate.getTime();
+
+            var x = [someDate, arrayItem.data];
+            pointsArray.push(x);
+        });
+        yAxisName = regsMap[key].type;
+        reloadChart(pointsArray, stringForType(yAxisName));
     }
     </script>
 
@@ -169,14 +233,36 @@
 
 
     <script>
-    function sendRequest(url){
-        $(function(){
+    function sendRequest(url) {
+        $(function() {
             $.getJSON(url, function(data) {
                 load(data);
             });
         });
     };
     </script>
+
+    <script>
+
+    function stringForType(type) {
+    	if (type == 'I') {
+    		return "Current (Ω)";
+
+    	}
+    	else if (type == 'F') {
+    		return "Frequency (Hz)";
+    	}
+    	else if (type == 'V') {
+    		return "Voltage (V)";
+    	}
+
+    }
+
+    </script>
+
+
+
+
 
 </body>
 
