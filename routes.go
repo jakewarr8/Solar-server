@@ -8,6 +8,7 @@ import (
 	"log"
 	"time"
 	"io/ioutil"
+	"strings"
 )
 
 type Route struct {
@@ -91,7 +92,18 @@ func HomeIndex(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w,"Error Loading Page ^_^. Try Again Later.")
 		return
 	}
+	
 	bs := string(p.Body[:])
+	
+	if strings.Contains(title, "css") {
+		log.Println("CSS")
+		w.Header().Set("Content-Type", "text/css; charset=UTF-8")
+	} else if strings.Contains(title, "js") {
+		log.Println("JS")
+		w.Header().Set("Content-Type", "text/javascript; charset=UTF-8")
+	}
+	w.WriteHeader(http.StatusOK)
+	
 	fmt.Fprintf(w,bs)	
 }
 
