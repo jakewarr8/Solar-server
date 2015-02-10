@@ -98,7 +98,7 @@
         beginDate = beginDate.replace(/\//g, '-');
         endDate = endDate.replace(/\//g, '-');
 
-        var urlEx = "/measurements/location/_location/serial/_serial/start/begindateTbegintimeZ/end/enddateTendtimeZ";
+        var urlEx = "/measurements/location/_location/serial/_serial/start/begindateTbegintime:00Z/end/enddateTendtime:00Z";
 
         urlEx = urlEx.replace("_location", location);
         urlEx = urlEx.replace("_serial", serial);
@@ -109,7 +109,7 @@
 
         var requestUrl = urlEx;
 
-        alert(requestUrl);
+        //alert(requestUrl);
 
         sendRequest(requestUrl);
 
@@ -234,11 +234,33 @@
             var url = '/locationsInfo';
             $.getJSON(url, function(data) {
                 populate(data);
+                submitUrlRequest(); //added for init async?
             });
         });
     });
     
+	//INIT VIEW
     reloadChart();
+    
+    $today = new Date();
+	$yesterday = new Date($today);
+	$yesterday.setDate($today.getDate() - 1);
+	
+	$tomorrow = new Date($today);
+	$tomorrow.setDate($today.getDate() + 1);
+	
+	//alert($today);
+	
+	$(function () {
+		$('#beginDate').val($yesterday.getFullYear()+"/"+"02"+"/"+("0" + $yesterday.getDate()).slice(-2));
+		$('#endDate').val($tomorrow.getFullYear()+"/"+"02"+"/"+("0" + $tomorrow.getDate()).slice(-2));
+		$('#beginTime').val("09:00");
+		$('#endTime').val("09:00");
+		
+	});
+	
+	
+	
     </script>
 
 
@@ -247,6 +269,7 @@
         $(function() {
             $.getJSON(url, function(data) {
                 load(data);
+                showChart("L1V") //FOR DEMO REMOVE OR FIX
             });
         });
     };
@@ -256,7 +279,7 @@
 
     function stringForType(type) {
     	if (type == 'I') {
-    		return "Current (Ω)";
+    		return "Current (Amps)";
 
     	}
     	else if (type == 'F') {
