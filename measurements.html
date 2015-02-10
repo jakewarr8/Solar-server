@@ -7,6 +7,7 @@
     <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
     <link rel="stylesheet" type="text/css" href="/home/style.css">
 	<link rel="stylesheet" type="text/css" href="/home/skin-tx.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body class="pure-skin-tx">
@@ -17,21 +18,26 @@
     </p>
 
 
+	<div class="pure-g">
+   
+	   <div class
+	   <p>
+			<br> Beginning Date (yyyy/mm/dd):
+			<input type="text" id="beginDate">
+			<br> Beginning Time - 24hr (hh:mm):
+			<input type="text" id="beginTime">
+		</p>
+		
+		<p>
+			<br> Ending Date (yyyy/mm/dd):
+			<input type="text" id="endDate">
 
-    <p>
-        <br> Beginning Date (yyyy/mm/dd):
-        <input type="text" id="beginDate">
-        <br> Beginning Time - 24hr (hh:mm):
-        <input type="text" id="beginTime">
-    </p>
-    <p>
-        <br> Ending Date (yyyy/mm/dd):
-        <input type="text" id="endDate">
-
-        <br>Ending Time - 24hr (hh:mm):
-        <input type="text" id="endTime">
-        <br>
-    </p>
+			<br>Ending Time - 24hr (hh:mm):
+			<input type="text" id="endTime">
+			<br>
+		</p>
+	</div>
+	
     <button class="pure-button pure-button-primary" value="Submit" onclick="submitUrlRequest()">Submit</button>
 
     <p>Select Register:
