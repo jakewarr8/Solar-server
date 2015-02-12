@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Solar</title>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+    <script type="text/javascript" src="/measurements.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="/skin-tx.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body class="pure-skin-tx">
+
+
+    <p>Select Logger:
+        <select name="locations" id="slct1"> </select>
+    </p>
+
+
+	<div class="pure-g">
+   
+	   <div class
+	   <p>
+			<br> Beginning Date (yyyy/mm/dd):
+			<input type="text" id="beginDate">
+			<br> Beginning Time - 24hr (hh:mm):
+			<input type="text" id="beginTime">
+		</p>
+		
+		<p>
+			<br> Ending Date (yyyy/mm/dd):
+			<input type="text" id="endDate">
+
+			<br>Ending Time - 24hr (hh:mm):
+			<input type="text" id="endTime">
+			<br>
+		</p>
+	</div>
+	
+    <button class="pure-button pure-button-primary" value="Submit" onclick="submitUrlRequest()">Submit</button>
+
+    <p>Select Register:
+        <select name="Registers" id="reg1" onchange="showChartForKey(this.value)"> </select>
+    </p>
+
+
+    <div id="Chart" style="width:100%; height:25em;"></div>
+	
+	<script> 
+		init(); 
+	</script>
+
+</body>
+
+</html>

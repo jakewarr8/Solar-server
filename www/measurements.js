@@ -1,92 +1,43 @@
-<!DOCTYPE html>
-<html>
+<!-- hide script from old browsers
 
-<head>
-    <title>Solar</title>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-    <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
-    <link rel="stylesheet" type="text/css" href="/home/style.css">
-	<link rel="stylesheet" type="text/css" href="/home/skin-tx.css">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+	//GLOBALS
+	var regsMap; // Hold the registors. Indexed by registors name. ex:["L1V]
 
-<body class="pure-skin-tx">
+	/* 
+		Inital function sets up the view with some data.
+	*/ 
+    function init() {
+    
+		reloadChart(); //set empty chart
 
+		$today = new Date();
+		$yesterday = new Date($today);
+		$yesterday.setDate($today.getDate() - 1);
 
-    <p>Select Logger:
-        <select name="locations" id="slct1"> </select>
-    </p>
+		$tomorrow = new Date($today);
+		$tomorrow.setDate($today.getDate() + 1);
 
-
-	<div class="pure-g">
-   
-	   <div class
-	   <p>
-			<br> Beginning Date (yyyy/mm/dd):
-			<input type="text" id="beginDate">
-			<br> Beginning Time - 24hr (hh:mm):
-			<input type="text" id="beginTime">
-		</p>
+		$(function () {
+			$('#beginDate').val($yesterday.getFullYear()+"/"+"02"+"/"+("0" + $yesterday.getDate()).slice(-2));
+			$('#endDate').val($tomorrow.getFullYear()+"/"+"02"+"/"+("0" + $tomorrow.getDate()).slice(-2));
+			$('#beginTime').val("09:00");
+			$('#endTime').val("09:00");
+		});
 		
-		<p>
-			<br> Ending Date (yyyy/mm/dd):
-			<input type="text" id="endDate">
-
-			<br>Ending Time - 24hr (hh:mm):
-			<input type="text" id="endTime">
-			<br>
-		</p>
-	</div>
+		$(function() {
+			var url = '/locationsInfo';
+			$.getJSON(url, function(data) {
+				populate(data);
+				submitUrlRequest(); 
+			});
+		});
+		
+	}
 	
-    <button class="pure-button pure-button-primary" value="Submit" onclick="submitUrlRequest()">Submit</button>
-
-    <p>Select Register:
-        <select name="Registers" id="reg1" onchange="showChart(this.value)"> </select>
-    </p>
-
-
-    <div id="Chart" style="width:100%; height:25em;"></div>
-
-
-    <script>
-    function reloadChart(data, yAxisName) {
-
-        $(function() {
-            $('#Chart').highcharts({
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: (yAxisName + " Chart")
-                },
-                xAxis: {
-                    title: {
-                        text: "Time"
-                    },
-                    type: 'datetime',
-                    dateTimeLabelFormats: { // don't display the dummy year
-                        month: '%e. %b',
-                        year: '%b'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: yAxisName
-                    }
-                },
-                series: [{
-                    name: 'Data',
-                    data: data
-                }]
-            });
-        });
-
-    }
-    </script>
-
-
-
-    <script>
+    /*
+    	Grabs the selected dates/times serial and location then make JSON request.
+    	JSON async block loads the json and updates the view with some data.
+	*/
     function submitUrlRequest() {
         var serial = document.getElementById("slct1").value;
         var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
@@ -109,17 +60,17 @@
 
         var requestUrl = urlEx;
 
-        //alert(requestUrl);
-
-        sendRequest(requestUrl);
-
+		$.getJSON(requestUrl, function(data) {
+			loadRegs(data);
+			populateRegisters(regsMap);
+			showChartForKey("L1V") //FOR DEMO REMOVE OR FIX
+		});
     }
-    </script>
-
-
-
-
-    <script>
+    
+    /*
+    	Populate location/serial selecter
+    	obj: raw json from the /locationsInfo call
+    */
     function populate(obj) {
         var s1 = document.getElementById("slct1");
         s1.innerHTML = "";
@@ -142,9 +93,11 @@
             }
         }
     }
-    </script>
-
-    <script>
+    
+    /*
+    	Populate the registor's selecter.
+    	regsMap: the registor's hash map a using key index. ex("L1V")
+    */
     function populateRegisters(regsMap) {
         var s1 = document.getElementById("reg1");
         s1.innerHTML = "";
@@ -157,16 +110,13 @@
             newOption.value = regsMap[i].name;
             s1.appendChild(newOption);
         }
-
-
     }
-    </script>
-
-
-    <script>
-    var regsMap;
-
-    function load(measurements) {
+    
+    /*
+    	Creates regsMap. A hash map for the registors.
+    	measurements: raw json from /measurements call.
+    */
+    function loadRegs(measurements) {
         regsMap = {};
         for (var meas in measurements) {
             var time = measurements[meas].time;
@@ -205,12 +155,29 @@
         for (var i in regsMap) {
             console.log(regsMap[i]); //For testing
         }
-        populateRegisters(regsMap);
+    }
+    
+    /*
+    	Returns the scientific unit for a type. ex("F->Hz")
+    	type: type of registor ("F")
+    */
+    function stringForType(type) {
+    	if (type == 'I') {
+    		return "Current (Amps)";
+    	}
+    	else if (type == 'F') {
+    		return "Frequency (Hz)";
+    	}
+    	else if (type == 'V') {
+    		return "Voltage (V)";
+    	}
     }
 
-    ///TODO
-    function showChart(key) {
-
+    /*
+    	Reads data from regsMap for selected registor. Then reloadsChart with that data.
+    	key: key for registor. ex("L1V")
+    */
+    function showChartForKey(key) {
         //console.log(key);
         var array1 = regsMap[key].regArray;
         var pointsArray = new Array();
@@ -225,78 +192,45 @@
         yAxisName = regsMap[key].type;
         reloadChart(pointsArray, stringForType(yAxisName));
     }
-    </script>
+        
+	/*
+		Reloads HighCharts Graph
+		data: contains the x&y values.
+		yAxisName: data type for y.
+	*/
+    function reloadChart(data, yAxisName) {
 
-
-    <script>
-    $(function() {
         $(function() {
-            var url = '/locationsInfo';
-            $.getJSON(url, function(data) {
-                populate(data);
-                submitUrlRequest(); //added for init async?
+            $('#Chart').highcharts({
+                chart: {
+                    type: 'line'
+                },
+                title: {
+                    text: (yAxisName + " Chart")
+                },
+                xAxis: {
+                    title: {
+                        text: "Time"
+                    },
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%e. %b',
+                        year: '%b'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: yAxisName
+                    }
+                },
+                series: [{
+                    name: 'Data',
+                    data: data
+                }]
             });
         });
-    });
-    
-	//INIT VIEW
-    reloadChart();
-    
-    $today = new Date();
-	$yesterday = new Date($today);
-	$yesterday.setDate($today.getDate() - 1);
-	
-	$tomorrow = new Date($today);
-	$tomorrow.setDate($today.getDate() + 1);
-	
-	//alert($today);
-	
-	$(function () {
-		$('#beginDate').val($yesterday.getFullYear()+"/"+"02"+"/"+("0" + $yesterday.getDate()).slice(-2));
-		$('#endDate').val($tomorrow.getFullYear()+"/"+"02"+"/"+("0" + $tomorrow.getDate()).slice(-2));
-		$('#beginTime').val("09:00");
-		$('#endTime').val("09:00");
-		
-	});
-	
-	
-	
-    </script>
-
-
-    <script>
-    function sendRequest(url) {
-        $(function() {
-            $.getJSON(url, function(data) {
-                load(data);
-                showChart("L1V") //FOR DEMO REMOVE OR FIX
-            });
-        });
-    };
-    </script>
-
-    <script>
-
-    function stringForType(type) {
-    	if (type == 'I') {
-    		return "Current (Amps)";
-
-    	}
-    	else if (type == 'F') {
-    		return "Frequency (Hz)";
-    	}
-    	else if (type == 'V') {
-    		return "Voltage (V)";
-    	}
 
     }
 
-    </script>
-
-
-
-
-
-</body>
-
-</html>
+    
+// end hiding script from old browsers -->

@@ -28,7 +28,7 @@ func NewFetcher(db DataHandler) {
 //	fmt.Println(mx)
 
 	m := Measurement{} //ToStore
-	m.Location= "SA"
+	m.Location= "TxState"
 	m.Time = time.Now().Local()		
 	for _,e := range mx.KeyPairs {
 		kp := KeyPair{Nk: e.Nk, Tk: e.Tk, Data: e.Data,}

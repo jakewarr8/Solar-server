@@ -7,8 +7,6 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"time"
-	"io/ioutil"
-	"strings"
 )
 
 type Route struct {
@@ -32,18 +30,6 @@ func NewRouter(db DataHandler) *mux.Router {
 
 	var routes = Routes{
 		Route{
-			"Index",
-			"GET",
-			"/",
-			Index,
-	    	},
-		Route{
-			"HomeIndex",
-			"GET",
-			"/home/{path}",
-			HomeIndex,
-		},
-		Route{
                         "MeasurementsShow",
                         "GET",
                         "/measurements/location/{location}/serial/{serial}/start/{start}/end/{end}",
@@ -58,53 +44,14 @@ func NewRouter(db DataHandler) *mux.Router {
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
-
+	
     	for _, route := range routes {
 		router.Methods(route.Method).Path(route.Pattern).Name(route.Name).Handler(route.HandlerFunc)
     	}
+	
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./www/")))
 
     return router
-}
-
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome!")
-}
-
-type Page struct {
-	Title string
-	Body  []byte
-}
- 
-func loadPage(title string) (*Page, error) {
-    filename := title
-    body, err := ioutil.ReadFile(filename)
-    if err != nil {
-        return nil, err
-    }
-    return &Page{Title: title, Body: body}, nil
-}
-  
-func HomeIndex(w http.ResponseWriter, r *http.Request) {	
-	vars := mux.Vars(r)
-	title := vars["path"]
-	p, err := loadPage(title)
-	if err != nil {
-		fmt.Fprintln(w,"Error Loading Page ^_^. Try Again Later.")
-		return
-	}
-	
-	bs := string(p.Body[:])
-	
-	if strings.Contains(title, "css") {
-		log.Println("CSS")
-		w.Header().Set("Content-Type", "text/css; charset=UTF-8")
-	} else if strings.Contains(title, "js") {
-		log.Println("JS")
-		w.Header().Set("Content-Type", "text/javascript; charset=UTF-8")
-	}
-	w.WriteHeader(http.StatusOK)
-	
-	fmt.Fprintf(w,bs)	
 }
 
 type FrontEnd struct {
