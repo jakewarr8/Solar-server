@@ -9,42 +9,41 @@
     
     <link rel="stylesheet" type="text/css" href="/style.css">
 	<link rel="stylesheet" type="text/css" href="/skin-tx.css">
+	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
 </head>
 
 <body class="pure-skin-tx">
 
-
-    <p>Select Logger:
-        <select name="locations" id="slct1"> </select>
-    </p>
-
-
-	<div class="pure-g">
-   
-	   <div class
-	   <p>
-			<br> Beginning Date (yyyy/mm/dd):
-			<input type="text" id="beginDate">
-			<br> Beginning Time - 24hr (hh:mm):
-			<input type="text" id="beginTime">
-		</p>
-		
-		<p>
-			<br> Ending Date (yyyy/mm/dd):
-			<input type="text" id="endDate">
-
-			<br>Ending Time - 24hr (hh:mm):
-			<input type="text" id="endTime">
-			<br>
-		</p>
-	</div>
-	
-    <button class="pure-button pure-button-primary" value="Submit" onclick="submitUrlRequest()">Submit</button>
-
-    <p>Select Register:
-        <select name="Registers" id="reg1" onchange="showChartForKey(this.value)"> </select>
-    </p>
+	<form class="pure-form pure-form-aligned">
+		<fieldset>
+			<div class="pure-control-group">
+				<label for="slct1">Select Logger:</label>
+				<select name="locations" id="slct1"> </select>
+			</div>
+			<div class="pure-control-group">
+		 		<label for="beginDate">Beginning Date (yyyy/mm/dd):</label>
+				<input type="text" id="beginDate">
+			</div>
+			<div class="pure-control-group">
+				<label for="beginTime">Beginning Time - 24hr (hh:mm):</label>
+				<input type="text" id="beginTime">
+                        </div>
+                        <div class="pure-control-group">
+                                <label for="endDate">Ending Date (yyyy/mm/dd):</label>
+                                <input type="text" id="endDate">
+                        </div>
+                        <div class="pure-control-group">
+                                <label for="endTime">Ending Time - 24hr (hh:mm):</label>
+                                <input type="text" id="endTime">
+                        </div>
+			<div class="pure-controls">
+				<button class="pure-button pure-button-primary" type="button" value="Submit" onclick="submitUrlRequest()">Submit</button>	
+				<select name="Registers" id="reg1" onchange="showChartForKey(this.value)"> </select>
+			</div>
+		</fieldset>		
+	</form>	
 
 
     <div id="Chart" style="width:100%; height:25em;"></div>
