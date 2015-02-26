@@ -26,10 +26,12 @@ func NewFetcher(db DataHandler) {
 
 //	fmt.Printf("%s\n", string(contents))
 //	fmt.Println(mx)
+	
+	fmt.Println(time.Now().Format(time.RFC850))
 
 	m := Measurement{} //ToStore
 	m.Location= "TxState"
-	m.Time = time.Now().Local()		
+	m.Time = time.Now()		
 	for _,e := range mx.KeyPairs {
 		kp := KeyPair{Nk: e.Nk, Tk: e.Tk, Data: e.Data,}
 		m.Registers = append(m.Registers, kp)
