@@ -6,14 +6,18 @@
 	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
 	<script type="text/javascript" src="/measurements.js"></script>
-    
-	<link rel="stylesheet" type="text/css" href="/style.css">
+	
+<!---  Will be finalized when I add everythign ese onto the server.
+<script type="text/javascript" src="/pickadate/piker.js"></script>
+<script type="text/javascript" src="/pickadate/piker.date.js"></script>
+<script type="text/javascript" src="/pickadate/picker.time.js"></script> --->
+      
 	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 </head>
 
-<body class="pure-skin-tx">
+<body>
 
 	<form class="pure-form pure-form-aligned">
 		<fieldset>
@@ -28,15 +32,15 @@
 			<div class="pure-control-group">
 				<label for="beginTime">Beginning Time - 24hr (hh:mm):</label>
 				<input type="text" id="beginTime">
-                        </div>
-                        <div class="pure-control-group">
-                                <label for="endDate">Ending Date (yyyy/mm/dd):</label>
-                                <input type="text" id="endDate">
-                        </div>
-                        <div class="pure-control-group">
-                                <label for="endTime">Ending Time - 24hr (hh:mm):</label>
-                                <input type="text" id="endTime">
-                        </div>
+            </div>
+			<div class="pure-control-group">
+					<label for="endDate">Ending Date (yyyy/mm/dd):</label>
+					<input type="text" id="endDate">
+			</div>
+			<div class="pure-control-group">
+					<label for="endTime">Ending Time - 24hr (hh:mm):</label>
+					<input type="text" id="endTime">
+			</div>
 			<div class="pure-controls">
 				<button class="pure-button pure-button-primary" type="button" value="Submit" onclick="submitUrlRequest()">Submit</button>	
 				<select name="Registers" id="reg1" onchange="showChartForKey(this.value)"> </select>
