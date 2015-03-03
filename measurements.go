@@ -2,35 +2,24 @@ package main
 
 import (
 	"time"
-	"encoding/json"
 )
 
-type KeyPair struct {
-        Nk      string          `json:"name"`  //CT1 L1F L1V
-        Tk      string          `json:"type"`  //I,V,F
-        Data    float64         `json:"data"`
+type Point struct {
+	Time	time.Time	`json:"time"`
+	Value	float64		`json:"value"`
 }
 
 type Measurement struct {
-	Time 		time.Time	`json:"time"`
-	Location 	string		`json:"location"`
-	Registers	[]KeyPair	`json:"registers"`
-}
-
-func (m Measurement) RegistersToJson() ([]byte, error) {
-	jsonString, err := json.Marshal(m.Registers)
-	return jsonString, err
-}
-
-//How to refence self
-func (m *Measurement) ParseRegisters(j []byte) (error) {
-	err := json.Unmarshal(j, &m.Registers)
-	return err
+	Location	string		`json:"location"`
+	Serial		string		`json:"serial"`
+	Register	string		`json:"register"`
+	Type		string		`json:"type"`
+	Data		[]Point		`json:"data"`
 }
 
 type Measurements []Measurement
 
-
+//***LocationsInfo***
 type LocationInfo struct {
 	LocationAbbrv	string		`json:"location"`
  	Serials		[]string	`json:"serials"`
@@ -38,8 +27,15 @@ type LocationInfo struct {
 
 type LocationsInfos []LocationInfo
 
+//***RegistersInfo***
+type Register struct {
+	Name		string		`json:"name"`
+	Type		string		`json:"type"`
+}
 
-//XML Structs
+type RegistersInfos []Register
+
+//***XML Structs***
 type KeyPairx struct {
         Nk      string          `xml:"n,attr"`  //CT1 L1F L1V
         Tk      string          `xml:"t,attr"`  //I,V
@@ -49,5 +45,8 @@ type KeyPairx struct {
 type Measurementx struct {
 	KeyPairs	[]KeyPairx	`xml:"r"`	
 	Time		int64		`xml:"ts"`
+	Location	string
+	Serial		string
+	TimeS		time.Time
 }
 

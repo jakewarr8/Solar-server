@@ -16,36 +16,36 @@ func NewOpen(dt string, c string) (DB, error) {
         return DB{db}, err
 }
 
-func (d DB) GetMeasurements(l string, s string, st time.Time, et time.Time) (ms Measurements, err error) {
-	log.Println("GetMS",l,s,st,et)	
-        var query = "SELECT time, data FROM measurements WHERE location=? AND serial=? AND time>=? AND time<?;"
-	//var rows sql.Rows
-	rows, err := d.Query(query, l, s, st, et)
+func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.Time) (m Measurement, err error) {
+	log.Println("GetMS",l,s,r,st,et) 	
+	var query = "SELECT time, data FROM measurements WHERE location=? AND serial=? AND register=? AND time>=? AND time<?;"
+	rows, err := d.Query(query, l, s, r, st, et)
 	if err != nil {
 		log.Println(err)
-		return ms, err
+		return
 	}
 	defer rows.Close()
-	
+
+	m.Location = l
+	m.Serial = s
+	m.Register = r
 	for rows.Next() {
-		m := Measurement{Location: l}
-		var t string//[]uint8
-		var rg []byte
-		err = rows.Scan(&t, &rg)	
-		//log.Println(t)
+		p := Point{}
+		var t string
+		err = rows.Scan(&t, &p.Value)
 		if err != nil {
-                	log.Println(err)
+			log.Println(err)
 		} else {
-			m.Time, err = time.Parse("2006-01-02 15:04:05", t)
-			m.ParseRegisters(rg)
-			ms = append(ms, m)
+			p.Time, err = time.Parse("2006-01-02 15:04:05", t)
+			m.Data = append(m.Data, p)
 		}
 	}
-	
-	return ms, rows.Err()
+
+
+	return m,err
 }
 
-func (d DB) SetMeasurements(ms Measurements) (err error) {
+func (d DB) SetMeasurements(m Measurementx) (err error) {
 	
 	// Create tx
 	tx, err := d.Begin()	
@@ -54,7 +54,7 @@ func (d DB) SetMeasurements(ms Measurements) (err error) {
 		return
 	}
 
-	var query = "INSERT INTO measurements (location,serial,time,data) VALUES (?, ?, ?, ?);"
+	var query = "INSERT INTO measurements (location,serial,time,register,type,data) VALUES (?, ?, ?, ?, ?, ?);"
         stmt, err := tx.Prepare(query)	
 	if err != nil {
 		log.Println(err)
@@ -73,9 +73,8 @@ func (d DB) SetMeasurements(ms Measurements) (err error) {
 		stmt.Close()
         }()
 	
-	for _,m := range ms {
-		json, _ := m.RegistersToJson()
-		_, err = stmt.Exec(m.Location, "0001", m.Time, json)
+	for _,r := range m.KeyPairs {
+		_, err = stmt.Exec(m.Location, m.Serial, m.TimeS, r.Nk, r.Tk, r.Data)
 		if err != nil {
 			log.Println(err)
 			return
@@ -130,3 +129,26 @@ func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
         return locInfos,rows.Err()
 }
 
+func (d DB) GetRegisters(loc string, ser string) (regs RegistersInfos, err error){
+	log.Println("GetRegisters ", loc, ser)
+	var query = "SELECT register, type FROM measurements WHERE location=? AND serial=? GROUP BY register, type;"
+	rows, err := d.Query(query,loc,ser)
+	
+	if err != nil {
+		log.Println(err)
+		return
+	}	
+	defer rows.Close()
+
+	for rows.Next() {
+		r := Register{}
+		err = rows.Scan(&r.Name, &r.Type)
+		if err != nil {
+			log.Println(err)
+		} else {
+			regs = append(regs, r)
+		}
+	}
+
+	return
+}

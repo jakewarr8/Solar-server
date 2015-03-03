@@ -19,9 +19,10 @@ type Route struct {
 type Routes []Route
 
 type DataHandler interface {
-	GetMeasurements(l string, s string, st time.Time, et time.Time) (ms Measurements, err error)
-	SetMeasurements(Measurements) (error)
-	GetLocationsClusters ()(locInfos LocationsInfos,  err error)
+	GetMeasurements(string, string, string, time.Time, time.Time) (Measurement, error)
+	SetMeasurements(Measurementx) (error)
+	GetRegisters(string, string) (RegistersInfos, error)
+	GetLocationsClusters ()(LocationsInfos, error)
 }
 
 func NewRouter(db DataHandler) *mux.Router {
@@ -32,7 +33,7 @@ func NewRouter(db DataHandler) *mux.Router {
 		Route{
                         "MeasurementsShow",
                         "GET",
-                        "/measurements/location/{location}/serial/{serial}/start/{start}/end/{end}",
+                        "/measurements/location/{location}/serial/{serial}/reg/{reg}/start/{start}/end/{end}",
                         fe.MeasurementsShow,
                 },
 		Route{
@@ -41,6 +42,12 @@ func NewRouter(db DataHandler) *mux.Router {
                         "/locationsInfo",
                         fe.ShowLocationsClusters,
                 },
+		Route{
+			"ShowRegistersInfo",
+			"GET",
+			"/registersInfo/location/{location}/serial/{serial}",
+			fe.ShowRegistersInfo,
+		},
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -61,6 +68,8 @@ type FrontEnd struct {
 func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
         l := vars["location"]
+	ser := vars["serial"]
+	reg := vars["reg"]
 
         start, err := time.Parse(time.RFC3339, vars["start"])
         if err != nil {
@@ -72,10 +81,8 @@ func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
                 log.Println(err)
         }
 
-        //fmt.Fprintln(w, "Todo show:", measurementId)
-
-        ms, err := fe.DataHandler.GetMeasurements(l,vars["serial"],start,end)
-        if err != nil || ms == nil{
+        ms, err := fe.DataHandler.GetMeasurements(l,ser,reg,start,end)
+        if err != nil {
                 fmt.Fprintln(w,"No Measurement Found.")
         } else {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -85,6 +92,23 @@ func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
                 	log.Println(err)
 			fmt.Fprintln(w,"No Measurement Found...")
         	}
+	}
+}
+
+func (fe FrontEnd) ShowRegistersInfo(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	loc := vars["location"]
+	ser := vars["serial"]
+	regs, err := fe.DataHandler.GetRegisters(loc,ser)
+	if err != nil {
+		log.Println(err)
+	}
+	
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	
+	if err := json.NewEncoder(w).Encode(regs); err != nil {
+		log.Println(err)
 	}
 }
 
