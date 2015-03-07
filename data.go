@@ -1,5 +1,8 @@
 package main 
 
+//SELECT  DAY(time), HOUR(time), MINUTE(time), AVG(data) FROM measurements WHERE serial="0002" GROUP BY DAY(time), HOUR(time), MINUTE(time) WITH ROLLUP;
+//select AVG(data), (ROUND(time / (60*10.8)) * 60 * 10.8) as rounded_time from measurements WHERE serial="0002" AND register="L1V" group by rounded_time;
+
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
@@ -17,9 +20,46 @@ func NewOpen(dt string, c string) (DB, error) {
 }
 
 func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.Time) (m Measurement, err error) {
-	log.Println("GetMS",l,s,r,st,et) 	
-	var query = "SELECT time, data FROM measurements WHERE location=? AND serial=? AND register=? AND time>=? AND time<?;"
-	rows, err := d.Query(query, l, s, r, st, et)
+	log.Println("GetMS",l,s,r,st,et)
+	
+	var max string
+	var min string
+	var rq = "select MAX(time), MIN(time) from measurements where location=? AND serial=? AND register=?;"
+	err = d.QueryRow(rq,l,s,r).Scan(&max,&min)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	maxT, err := time.Parse("2006-01-02 15:04:05", max)
+	minT, err := time.Parse("2006-01-02 15:04:05", min)
+	if err != nil {
+		log.Println(err)
+		return
+	}	
+	if st.Before(minT) {
+		log.Println("st before")
+		st = minT
+	}
+	if et.After(maxT) {
+		log.Println("et after")
+		et = maxT
+	}
+	
+        var timedif = et.Unix() - st.Unix()
+        var minSpan float32
+	if (timedif > 60000) {
+                var secSpan = float32(timedif/1000)
+                minSpan = float32(secSpan/60)
+        } else {
+		minSpan = 1.0 		
+	}
+
+	log.Println("MinSpan:",minSpan)	
+
+	var query = "SELECT AVG(data), FROM_UNIXTIME(TRUNCATE(UNIX_TIMESTAMP(time) / (60*?), 0) * 60 * ?) as rounded_time from measurements WHERE location=? AND serial=? AND register=? AND time>=? AND time<? group by rounded_time;"
+	
+	//var query = "SELECT time, data FROM measurements WHERE location=? AND serial=? AND register=? AND time>=? AND time<?;"
+	rows, err := d.Query(query, minSpan, minSpan, l, s, r, st, et)
 	if err != nil {
 		log.Println(err)
 		return
@@ -32,7 +72,7 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 	for rows.Next() {
 		p := Point{}
 		var t string
-		err = rows.Scan(&t, &p.Value)
+		err = rows.Scan(&p.Value, &t)
 		if err != nil {
 			log.Println(err)
 		} else {

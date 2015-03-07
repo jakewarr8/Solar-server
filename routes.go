@@ -80,9 +80,11 @@ func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
         if err != nil {
                 log.Println(err)
         }
-
-        ms, err := fe.DataHandler.GetMeasurements(l,ser,reg,start,end)
-        if err != nil {
+	
+	var ms Measurement
+	ms, err = fe.DataHandler.GetMeasurements(l,ser,reg,start,end)
+	
+	if err != nil {
                 fmt.Fprintln(w,"No Measurement Found.")
         } else {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
