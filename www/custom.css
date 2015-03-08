@@ -1,8 +1,13 @@
 .gr {
-	background-color: #565656;
+	background-color: #ccc;
 	min-height: 200px;
 	border: 0px solid #ccc;
 	
-	margin: 5px 15px 0px 15px;
+	margin: 10px 10px 10px 10px;
 	padding: 5px 5px 5px 5px;
+}
+
+.tc {
+	height: 300px
+	
 }

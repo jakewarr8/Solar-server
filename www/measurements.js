@@ -7,68 +7,16 @@
 		Inital function sets up the view with some data.
 	*/ 
     function init() {
-    	
-
-    
-		reloadChart(); //set empty chart
-
-		$today = new Date();
-		$yesterday = new Date($today);
-		$yesterday.setDate($today.getDate() - 1);
-
-		$tomorrow = new Date($today);
-		$tomorrow.setDate($today.getDate() + 1);
-
-		$(function () {
-			$('#beginDate').val($yesterday.getFullYear()+"/"+"02"+"/"+("0" + $yesterday.getDate()).slice(-2));
-			$('#endDate').val($tomorrow.getFullYear()+"/"+"02"+"/"+("0" + $tomorrow.getDate()).slice(-2));
-			$('#beginTime').val("09:00");
-			$('#endTime').val("09:00");
-		});
-		
 		$(function() {
 			var url = '/locationsInfo';
 			$.getJSON(url, function(data) {
 				populate(data);
-				submitUrlRequest(); 
+				//submitUrlRequest(); 
+				updateRegistors()
 			});
 		});
-		
 	}
 	
-    /*
-    	Grabs the selected dates/times serial and location then make JSON request.
-    	JSON async block loads the json and updates the view with some data.
-	*/
-    function submitUrlRequest() {
-        var serial = document.getElementById("slct1").value;
-        var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
-        var beginDate = document.getElementById('beginDate').value;
-        var beginTime = document.getElementById('beginTime').value;
-        var endDate = document.getElementById('endDate').value;
-        var endTime = document.getElementById('endTime').value;
-
-        beginDate = beginDate.replace(/\//g, '-');
-        endDate = endDate.replace(/\//g, '-');
-
-        var urlEx = "/measurements/location/_location/serial/_serial/start/begindateTbegintime:00Z/end/enddateTendtime:00Z";
-
-        urlEx = urlEx.replace("_location", location);
-        urlEx = urlEx.replace("_serial", serial);
-        urlEx = urlEx.replace("begindate", beginDate);
-        urlEx = urlEx.replace("begintime", beginTime);
-        urlEx = urlEx.replace("enddate", endDate);
-        urlEx = urlEx.replace("endtime", endTime);
-
-        var requestUrl = urlEx;
-
-		$.getJSON(requestUrl, function(data) {
-			loadRegs(data);
-			populateRegisters(regsMap);
-			showChartForKey("L1V") //FOR DEMO REMOVE OR FIX
-		});
-    }
-    
     /*
     	Populate location/serial selecter
     	obj: raw json from the /locationsInfo call
@@ -97,69 +45,6 @@
     }
     
     /*
-    	Populate the registor's selecter.
-    	regsMap: the registor's hash map a using key index. ex("L1V")
-    */
-    function populateRegisters(regsMap) {
-        var s1 = document.getElementById("reg1");
-        s1.innerHTML = "";
-
-        for (var i in regsMap) {
-            //console.log(regsMap[i]); //For testing
-
-            var newOption = document.createElement("option");
-            newOption.innerHTML = regsMap[i].name;
-            newOption.value = regsMap[i].name;
-            s1.appendChild(newOption);
-        }
-    }
-    
-    /*
-    	Creates regsMap. A hash map for the registors.
-    	measurements: raw json from /measurements call.
-    */
-    function loadRegs(measurements) {
-        regsMap = {};
-        for (var meas in measurements) {
-            var time = measurements[meas].time;
-            var regs = measurements[meas].registers;
-
-            for (reg in regs) {
-                if (regs[reg].name in regsMap) {
-                    var regDict = regsMap[regs[reg].name];
-                    var regA = regDict.regArray;
-                    var regMeas = {
-                        time: time,
-                        data: regs[reg].data
-                    };
-                    regA.push(regMeas);
-
-                } else {
-                    var regA = new Array();
-
-                    var regMeas = {
-                        time: time,
-                        data: regs[reg].data
-                    };
-                    regA.push(regMeas);
-
-                    var regDict = {
-                        name: regs[reg].name,
-                        type: regs[reg].type,
-                        regArray: regA
-                    }
-
-                    regsMap[regs[reg].name] = regDict
-                }
-
-            }
-        }
-        for (var i in regsMap) {
-            console.log(regsMap[i]); //For testing
-        }
-    }
-    
-    /*
     	Returns the scientific unit for a type. ex("F->Hz")
     	type: type of registor ("F")
     */
@@ -175,140 +60,104 @@
     	}
     }
 
-    /*
-    	Reads data from regsMap for selected registor. Then reloadsChart with that data.
-    	key: key for registor. ex("L1V")
-    */
-    function showChartForKey(key) {
-        //console.log(key);
-        var array1 = regsMap[key].regArray;
-        var pointsArray = new Array();
-        //alert(array1);
-        array1.forEach(function(arrayItem) {
-            var someDate = new Date(arrayItem.time);
-            someDate = someDate.getTime();
 
-            var x = [someDate, arrayItem.data];
-            pointsArray.push(x);
-        });
-        yAxisName = regsMap[key].type;
-        reloadChart(pointsArray, stringForType(yAxisName));
-    }
-    
-    function updateRegistors(key) {
+    function updateRegistors() {
     	//registersInfo/location/TxState/serial/0001
+    	var serial = document.getElementById("slct1").value;
     	var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
-    	var url = "/registersInfo/location/" + location + "/serial/" + key;
+    	var url = "/registersInfo/location/" + location + "/serial/" + serial;
 		$.getJSON(url, function(regs) {
 			console.log(regs);
+			var tables = document.getElementById("tables");
+			tables.innerHTML = "";
+			
 			var s1 = document.getElementById("reg1");
         	s1.innerHTML = "";
-        	
 			for (var reg in regs) {
 				var newOption = document.createElement("option");
             	newOption.innerHTML = regs[reg].name;
             	newOption.value = regs[reg].name;
             	s1.appendChild(newOption);
+            	
+            	loadTableForReg(regs[reg]);
 			}
+			
+			
 		});
     }
-        
-	/*
-		Reloads HighCharts Graph
-		data: contains the x&y values.
-		yAxisName: data type for y.
-	*/
-    function reloadChart(data, yAxisName) {
+    
+    function loadTableForReg(reg) {
+		var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
+		var serial = document.getElementById("slct1").value;
+		var url = "/measurements/location/"+location+"/serial/"+serial+"/reg/"+reg.name+"/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z";
+		$.getJSON(url, function(data) { 
+		
+			//CREATE HTML
+			var tables = document.getElementById("tables");
+			var gridbox = document.createElement('div');
+			gridbox.setAttribute('class', 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-3');
+			
+			var tablebox = document.createElement('div');
+			tablebox.setAttribute('class', 'gr');
+			
+			var container = document.createElement('div');
+			container.setAttribute('class', 'tc');
+			container.setAttribute('id', reg.name);
+			
+			tablebox.appendChild(container);
+			gridbox.appendChild(tablebox);
+			tables.appendChild(gridbox);
+			
+			
+		
+			console.log(data);
+ 			var array1 = data.data;
+ 			var pointsArray = new Array();
+ 
+ 			array1.forEach(function(arrayItem) {
+ 				var someDate = new Date(arrayItem.time);
+ 				someDate = someDate.getTime();
+				var x = [someDate, arrayItem.value];
+ 				pointsArray.push(x);
+ 			});	
+ 			
+ 			var sel = "#"+reg.name;
+			$(sel).highcharts('StockChart', {
+				rangeSelector : {
+					//selected : 2
+					enabled: true
+				},
 
-//         $(function() {
-//             $('#Chart').highcharts({
-//                 chart: {
-//                     type: 'line'
-//                 },
-//                 title: {
-//                     text: (yAxisName + " Chart")
-//                 },
-//                 xAxis: {
-//                     title: {
-//                         text: "Time"
-//                     },
-//                     type: 'datetime',
-//                     dateTimeLabelFormats: { // don't display the dummy year
-//                         month: '%e. %b',
-//                         year: '%b'
-//                     }
-//                 },
-//                 yAxis: {
-//                     title: {
-//                         text: yAxisName
-//                     }
-//                 },
-//                 series: [{
-//                     name: 'Data',
-//                     data: data
-//                 }]
-//             });
-//         });
-        
-        $(function () {
-			$.getJSON('http://txsolar.mooo.com/measurements/location/TxState/serial/0001/reg/L1V/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z', function (data) {
-				// Create the chart
+				title : {
+					text : reg.name
+				},
 				
-				var array1 = data.data;
-				var pointsArray = new Array();
-				
-				array1.forEach(function(arrayItem) {
-					var someDate = new Date(arrayItem.time);
-					someDate = someDate.getTime();
-
-					var x = [someDate, arrayItem.value];
-					pointsArray.push(x);
-				});				
-				
-				
-				$('#container').highcharts('StockChart', {
-					rangeSelector : {
-						//selected : 2
-						enabled: false
-					},
-
-					title : {
-						text : 'L1V'
-					},
-					
-					series : [{
-						name : 'Volts',
-						data : pointsArray,
-						tooltip: {
-							valueDecimals: 2
-						}
-					}]
-				});
-				
-				$('#container2').highcharts('StockChart', {
-					rangeSelector : {
-						//selected : 2
-						enabled: true
-					},
-
-					title : {
-						text : 'L2V'
-					},
-					
-					series : [{
-						name : 'Volts',
-						data : pointsArray,
-						tooltip: {
-							valueDecimals: 2
-						}
-					}]
-				});
-				
-				
+				series : [{
+					name : 'Volts',
+					data : pointsArray,
+					tooltip: {
+						valueDecimals: 2
+					}
+				}]
 			});
+ 			
+ 			
 		});
+	}
+        
 
-    }
+
+function pastMonth() {
+//Get data from past month
+//Reload Chart with data from the past month
+//
+}
+function pastWeek() {
+//Same thing, just with past week
+}
+function pastDay() {
+//Same thing with past day
+}
 
     
 // end hiding script from old browsers -->
