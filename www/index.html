@@ -4,14 +4,16 @@
 <head>
 	<title>Solar</title>
 	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-	<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+	
+	<script src="http://code.highcharts.com/stock/highstock.js"></script>
+	<script src="http://code.highcharts.com/stock/modules/exporting.js"></script>
+	
 	<script type="text/javascript" src="/measurements.js"></script>
 	
-	<script type="text/javascript" src="/pickadate/picker.js"></script>
-	<script type="text/javascript" src="/pickadate/picker.date.js"></script>
-	<script type="text/javascript" src="/pickadate/picker.time.js"></script>
-      
 	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+	<link rel="stylesheet" href="/custom.css">
+	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 </head>
@@ -22,33 +24,34 @@
 		<fieldset>
 			<div class="pure-control-group">
 				<label for="slct1">Select Logger:</label>
-				<select name="locations" id="slct1"> </select>
+				<select name="locations" id="slct1" onchange="updateRegistors(this.value)"> </select>
 			</div>
+			
 			<div class="pure-control-group">
-		 		<label for="beginDate">Beginning Date (yyyy/mm/dd):</label>
-				<input type="text" id="beginDate">
+				<label for="reg1">Select Registers:</label>
+				<select name="Registers" id="reg1" onchange="showChartForKey(this.value)"> </select>
 			</div>
-			<div class="pure-control-group">
-				<label for="beginTime">Beginning Time - 24hr (hh:mm):</label>
-				<input type="text" id="beginTime">
-            </div>
-			<div class="pure-control-group">
-					<label for="endDate">Ending Date (yyyy/mm/dd):</label>
-					<input type="text" id="endDate">
-			</div>
-			<div class="pure-control-group">
-					<label for="endTime">Ending Time - 24hr (hh:mm):</label>
-					<input type="text" id="endTime">
-			</div>
+			
 			<div class="pure-controls">
 				<button class="pure-button pure-button-primary" type="button" value="Submit" onclick="submitUrlRequest()">Submit</button>	
-				<select name="Registers" id="reg1" onchange="showChartForKey(this.value)"> </select>
 			</div>
 		</fieldset>		
 	</form>	
-
-	<div id="Chart" style="width:100%; height:25em;"></div>
-		
+	
+	<div class="pure-g">
+		<div class="pure-u-1 pure-u-md-1 pure-u-lg-1-2">
+			<div class="gr">
+				<div id="container" style="height: 400px; min-width: 310px"></div>
+			</div>
+		</div>
+		<div class="pure-u-1 pure-u-md-1 pure-u-lg-1-2">
+			<div class="gr">
+				<div id="container2" style="height: 400px; min-width: 310px"></div>
+			</div>
+		</div>
+	</div>
+	
+	
 	<script> 
 		init(); 
 	</script>

@@ -7,6 +7,8 @@
 		Inital function sets up the view with some data.
 	*/ 
     function init() {
+    	
+
     
 		reloadChart(); //set empty chart
 
@@ -192,6 +194,24 @@
         yAxisName = regsMap[key].type;
         reloadChart(pointsArray, stringForType(yAxisName));
     }
+    
+    function updateRegistors(key) {
+    	//registersInfo/location/TxState/serial/0001
+    	var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
+    	var url = "/registersInfo/location/" + location + "/serial/" + key;
+		$.getJSON(url, function(regs) {
+			console.log(regs);
+			var s1 = document.getElementById("reg1");
+        	s1.innerHTML = "";
+        	
+			for (var reg in regs) {
+				var newOption = document.createElement("option");
+            	newOption.innerHTML = regs[reg].name;
+            	newOption.value = regs[reg].name;
+            	s1.appendChild(newOption);
+			}
+		});
+    }
         
 	/*
 		Reloads HighCharts Graph
@@ -200,35 +220,93 @@
 	*/
     function reloadChart(data, yAxisName) {
 
-        $(function() {
-            $('#Chart').highcharts({
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: (yAxisName + " Chart")
-                },
-                xAxis: {
-                    title: {
-                        text: "Time"
-                    },
-                    type: 'datetime',
-                    dateTimeLabelFormats: { // don't display the dummy year
-                        month: '%e. %b',
-                        year: '%b'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: yAxisName
-                    }
-                },
-                series: [{
-                    name: 'Data',
-                    data: data
-                }]
-            });
-        });
+//         $(function() {
+//             $('#Chart').highcharts({
+//                 chart: {
+//                     type: 'line'
+//                 },
+//                 title: {
+//                     text: (yAxisName + " Chart")
+//                 },
+//                 xAxis: {
+//                     title: {
+//                         text: "Time"
+//                     },
+//                     type: 'datetime',
+//                     dateTimeLabelFormats: { // don't display the dummy year
+//                         month: '%e. %b',
+//                         year: '%b'
+//                     }
+//                 },
+//                 yAxis: {
+//                     title: {
+//                         text: yAxisName
+//                     }
+//                 },
+//                 series: [{
+//                     name: 'Data',
+//                     data: data
+//                 }]
+//             });
+//         });
+        
+        $(function () {
+			$.getJSON('http://txsolar.mooo.com/measurements/location/TxState/serial/0001/reg/L1V/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z', function (data) {
+				// Create the chart
+				
+				var array1 = data.data;
+				var pointsArray = new Array();
+				
+				array1.forEach(function(arrayItem) {
+					var someDate = new Date(arrayItem.time);
+					someDate = someDate.getTime();
+
+					var x = [someDate, arrayItem.value];
+					pointsArray.push(x);
+				});				
+				
+				
+				$('#container').highcharts('StockChart', {
+					rangeSelector : {
+						//selected : 2
+						enabled: false
+					},
+
+					title : {
+						text : 'L1V'
+					},
+					
+					series : [{
+						name : 'Volts',
+						data : pointsArray,
+						tooltip: {
+							valueDecimals: 2
+						}
+					}]
+				});
+				
+				$('#container2').highcharts('StockChart', {
+					rangeSelector : {
+						//selected : 2
+						enabled: true
+					},
+
+					title : {
+						text : 'L2V'
+					},
+					
+					series : [{
+						name : 'Volts',
+						data : pointsArray,
+						tooltip: {
+							valueDecimals: 2
+						}
+					}]
+				});
+				
+				
+			});
+		});
 
     }
 
