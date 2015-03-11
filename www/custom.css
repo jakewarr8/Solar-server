@@ -11,3 +11,11 @@
 	height: 300px
 	
 }
+
+ul { 
+  list-style: none;
+  margin: 5px 20px;
+}
+li {
+  margin: 0 0 5px 0;
+}
