@@ -16,9 +16,16 @@
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+	<script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+		
 </head>
 
 <body>
+	
+	<div id="dialog" title="Basic dialog">
+		<div id="L1V" class="tc"></div>
+	</div>
 
 	<form class="pure-form pure-form-aligned">
 		<fieldset>
@@ -31,26 +38,15 @@
 				<label for="reg1">Select Registers:</label>
 				<select name="Registers" id="reg1" onchange="showChartForKey(this.value)"> </select>
 			</div>
-
-			<label> Or Select Duration</label> </br>
-
-			<button onclick ="pastMonth()">  One Month </button>
-			<button onclick ="pastWeek()"> One week </button>
-			<button onclick ="pastDay()"> One day </button>
-
-
+                        
 		</fieldset>		
 	</form>	
 	
 	<div class="pure-g" id="tables">
 
 	</div>
-	
-	
-	<script> 
-		init(); 
-	</script>
 
+	
 </body>
 
 </html>

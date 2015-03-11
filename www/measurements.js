@@ -6,16 +6,23 @@
 	/* 
 		Inital function sets up the view with some data.
 	*/ 
-    function init() {
-		$(function() {
-			var url = '/locationsInfo';
-			$.getJSON(url, function(data) {
-				populate(data);
-				//submitUrlRequest(); 
-				updateRegistors()
-			});
+
+	$(document).ready(function () {
+		
+		$( "#dialog" ).dialog({
+			autoOpen: false,
 		});
-	}
+		$( ".opener" ).click(openDialog);
+		
+		var url = '/locationsInfo';
+		$.getJSON(url, function(data) {
+			populate(data);
+			//submitUrlRequest(); 
+			updateRegistors()
+		});
+		
+		
+	});
 	
     /*
     	Populate location/serial selecter
@@ -104,9 +111,17 @@
 			container.setAttribute('class', 'tc');
 			container.setAttribute('id', reg.name);
 			
+			var btn = document.createElement('BUTTON');
+			btn.setAttribute('class', 'opener');
+			$(btn).click(openDialog);
+			var t = document.createTextNode("Show History");
+			btn.appendChild(t); 
+			tablebox.appendChild(btn);
+			
 			tablebox.appendChild(container);
 			gridbox.appendChild(tablebox);
 			tables.appendChild(gridbox);
+			
 			
 			
 		
@@ -145,7 +160,12 @@
 		});
 	}
         
-
+    function openDialog(event) {	
+			$( ".opener" ).click(function() {
+				$( "#dialog" ).dialog( "open" );
+			});
+			console.log(event);
+	}
 
 function pastMonth() {
 //Get data from past month
