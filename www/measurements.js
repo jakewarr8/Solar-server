@@ -1,6 +1,6 @@
 
 //GLOBALS
-var regsMap; // Hold the registors. Indexed by registors name. ex:["L1V]
+//var regsMap; // Unused atm
 
 /* 
 	Inital function sets up the view with some data.
@@ -62,7 +62,9 @@ function stringForType(type) {
 	}
 }
 
-
+/*
+	Loads all the tables for a selected serial and location
+*/
 function updateTables() {
 	//registersInfo/location/TxState/serial/0001
 	var serial = document.getElementById("slct1").value;
@@ -88,6 +90,9 @@ function updateTables() {
 	});
 }
 
+/*
+	Loads a table for a single registor. Called by updateTables().
+*/
 function loadTableForReg(reg) {
 	var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
 	var serial = document.getElementById("slct1").value;
