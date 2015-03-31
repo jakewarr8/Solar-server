@@ -19,6 +19,35 @@ func NewOpen(dt string, c string) (DB, error) {
         return DB{db}, err
 }
 
+func (d DB) LastMeasurement(l string, s string, r string) (p Point, err error){
+	var max string
+	var rq = "select MAX(time) from measurements where location=? AND serial=? AND register=?;"
+	err = d.QueryRow(rq,l,s,r).Scan(&max)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	maxT, err := time.Parse("2006-01-02 15:04:05", max)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	
+	var data float64
+	rq = "select data from measurements where location=? AND serial=? AND register=? AND time=?;"
+	err = d.QueryRow(rq,l,s,r,maxT).Scan(&data)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	
+	p.Time = maxT
+	p.Value = data	
+
+	return		
+
+}
+
 func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.Time) (m Measurement, err error) {
 	log.Println("GetMS",l,s,r,st,et)
 	

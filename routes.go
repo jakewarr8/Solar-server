@@ -19,6 +19,7 @@ type Route struct {
 type Routes []Route
 
 type DataHandler interface {
+	LastMeasurement(l string, s string, r string) (p Point, err error)
 	GetMeasurements(string, string, string, time.Time, time.Time) (Measurement, error)
 	SetMeasurements(Measurementx) (error)
 	GetRegisters(string, string) (RegistersInfos, error)
@@ -30,6 +31,12 @@ func NewRouter(db DataHandler) *mux.Router {
 	fe := FrontEnd{DataHandler: db}
 
 	var routes = Routes{
+		Route{
+			"LastMeasurement",
+			"GET",
+			"/lastmeasurement/loc/{loc}/ser/{ser}/reg/{reg}",
+			fe.LastMeasurement,
+		},
 		Route{
                         "MeasurementsShow",
                         "GET",
@@ -64,6 +71,28 @@ func NewRouter(db DataHandler) *mux.Router {
 type FrontEnd struct {
 	DataHandler
 }
+
+func (fe FrontEnd) LastMeasurement(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	loc := vars["loc"]
+	ser := vars["ser"]
+	reg := vars["reg"]
+	
+	p, err := fe.DataHandler.LastMeasurement(loc, ser, reg) 
+	if err != nil {
+		fmt.Fprintln(w,"No Measurement Found.")
+		
+	} else {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(p); err != nil {
+			log.Println(err)
+			fmt.Fprintln(w,"No Measurement Found...")
+		}
+	}
+}
+
 
 func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
