@@ -23,8 +23,7 @@ type DataHandler interface {
 	LastMeasurement(l string, s string, r string) (p Point, err error)
 	GetMeasurements(string, string, string, time.Time, time.Time) (Measurement, error)
 	SetMeasurements(Measurementx) (error)
-	GetRegisters(string, string) (RegistersInfos, error)
-	GetLocationsClusters ()(LocationsInfos, error)
+	GetLocationsClusters ()(LocationsInfoSets, error)
 }
 
 func NewRouter(db DataHandler) *mux.Router {
@@ -56,12 +55,6 @@ func NewRouter(db DataHandler) *mux.Router {
                         "/locationsInfo",
                         fe.ShowLocationsClusters,
                 },
-		Route{
-			"ShowRegistersInfo",
-			"GET",
-			"/registersInfo/location/{location}/serial/{serial}",
-			fe.ShowRegistersInfo,
-		},
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -73,10 +66,6 @@ func NewRouter(db DataHandler) *mux.Router {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./www/")))
 
 	return router
-}
-
-type FrontEnd struct {
-	DataHandler
 }
 
 func MobileView(w http.ResponseWriter, r *http.Request){
@@ -116,6 +105,10 @@ func RenderTemplate(w http.ResponseWriter, tmlp string, data *DataPayload) { //d
 		log.Println(err)
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+type FrontEnd struct {
+	DataHandler
 }
 
 func (fe FrontEnd) LastMeasurement(w http.ResponseWriter, r *http.Request) {
@@ -172,22 +165,7 @@ func (fe FrontEnd) MeasurementsShow(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (fe FrontEnd) ShowRegistersInfo(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	loc := vars["location"]
-	ser := vars["serial"]
-	regs, err := fe.DataHandler.GetRegisters(loc,ser)
-	if err != nil {
-		log.Println(err)
-	}
-	
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	
-	if err := json.NewEncoder(w).Encode(regs); err != nil {
-		log.Println(err)
-	}
-}
+
 
 func (fe FrontEnd) ShowLocationsClusters(w http.ResponseWriter, r *http.Request) {
 

@@ -63,3 +63,16 @@ type LocationTable struct {
 
 type LocationTables []LocationTable
 
+//***LocationInfoV2***
+type Serial struct {
+	Name		string		`json:"serial"`
+	Registers	[]Register	`json:"regs"`	
+}
+
+type Location struct {
+	Name		string		`json:"location"`
+	Serials		[]Serial	`json:"serials"`
+}
+
+type LocationsInfoSets []Location
+

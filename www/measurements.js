@@ -15,7 +15,7 @@ $(document).ready(function () {
 	var url = '/locationsInfo';
 	$.getJSON(url, function(data) {
 		populate(data);
-		updateTables()
+		//updateTables()
 	});
 	
 });
@@ -30,20 +30,26 @@ function populate(obj) {
 
 	for (var loc in obj) {
 		var location = obj[loc].location;
-		var serials = obj[loc].serials;
-
-		var newOptGroup = document.createElement("optgroup");
-		newOptGroup.label = location;
-		s1.appendChild(newOptGroup);
-
-		for (var ser in serials) {
-			var serial = serials[ser];
-
-			var newOption = document.createElement("option");
-			newOption.value = serial;
-			newOption.innerHTML = serial;
-			newOptGroup.appendChild(newOption);
-		}
+ 		var serials = obj[loc].serials;
+ 
+ 		var newOptGroup = document.createElement("optgroup");
+ 		newOptGroup.label = location;
+ 		s1.appendChild(newOptGroup);
+ 
+ 		for (var ser in serials) {
+ 			var serial = serials[ser];
+ 			var regs =  serial.regs;
+ 
+ 			var newOption = document.createElement("option");
+ 			newOption.value = serial.serial;
+ 			newOption.innerHTML = serial.serial;
+ 			newOptGroup.appendChild(newOption);
+ 			
+ 			for (var reg in regs) {
+ 				loadTableForReg(location,serial.serial,regs[reg].name);
+ 			}
+ 			
+ 		}
 	}
 }
 
@@ -64,41 +70,10 @@ function stringForType(type) {
 }
 
 /*
-	Loads all the tables for a selected serial and location
-*/
-function updateTables() {
-	//registersInfo/location/TxState/serial/0001
-	var serial = document.getElementById("slct1").value;
-	var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
-	var url = "/registersInfo/location/" + location + "/serial/" + serial;
-	$.getJSON(url, function(regs) {
-		console.log(regs);
-		var tables = document.getElementById("tables");
-		tables.innerHTML = "";
-		
-		var s1 = document.getElementById("reg1");
-		s1.innerHTML = "";
-		for (var reg in regs) {
-			var newOption = document.createElement("option");
-			newOption.innerHTML = regs[reg].name;
-			newOption.value = regs[reg].name;
-			s1.appendChild(newOption);
-			
-			loadTableForReg(regs[reg]);
-		}
-		//setInterval(cycleTables,3000);
-		
-		
-	});
-}
-
-/*
 	Loads a table for a single registor. Called by updateTables().
 */
-function loadTableForReg(reg) {
-	var location = document.getElementById("slct1").options[document.getElementById("slct1").selectedIndex].parentNode.label;
-	var serial = document.getElementById("slct1").value;
-	var url = "/measurements/location/"+location+"/serial/"+serial+"/reg/"+reg.name+"/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z";
+function loadTableForReg(loc,ser,reg) {
+	var url = "/measurements/location/"+loc+"/serial/"+ser+"/reg/"+reg+"/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z";
 	$.getJSON(url, function(data) { 
 	
 		//CREATE HTML
@@ -111,7 +86,7 @@ function loadTableForReg(reg) {
 		
 		var container = document.createElement('div');
 		container.setAttribute('class', 'tc');
-		container.setAttribute('id', reg.name);
+		container.setAttribute('id', reg);
 		
 		var btn = document.createElement('BUTTON');
 		btn.setAttribute('class', 'opener');
@@ -127,14 +102,14 @@ function loadTableForReg(reg) {
 		console.log(data);
 		
 		//get chart then set
-		var sel = "#"+reg.name;
-		registerCharts[reg.name] = $(sel).highcharts('StockChart', {
+		var sel = "#"+reg;
+		registerCharts[reg] = $(sel).highcharts('StockChart', {
 			rangeSelector : {
 				//selected : 2
 				enabled: true
 			},
 			title : {
-				text : reg.name
+				text : reg
 			},
 			series : [{
 				name : 'Volts',

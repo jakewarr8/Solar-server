@@ -155,7 +155,7 @@ func (d DB) SetMeasurements(m Measurementx) (err error) {
 	return 
 }
 
-func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
+func (d DB) GetLocationsClusters ()(locInfos LocationsInfoSets,  err error) {
 	log.Println("GetLocationsClusters")
 	var query = "SELECT location, serial FROM measurements GROUP BY location, serial;"
 	rows, err := d.Query(query)
@@ -166,7 +166,7 @@ func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
         }
         defer rows.Close()
 
-	x := make(map[string]LocationInfo)	
+	x := make(map[string]Location)	
 	
         for rows.Next() {        
 		var l string 
@@ -174,7 +174,7 @@ func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
                 
 		err = rows.Scan(&l, &serial)
                 //log.Println(l,clusterid)
-		
+	
 
 		if err != nil {
 			log.Println(err)
@@ -182,12 +182,14 @@ func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
 		} else {
 			locinfo, ok := x[l]
 			if ok {
-				locinfo.Serials = append(locinfo.Serials,serial)
+				ss, _ := d.GetSerialInfo(l,serial)
+				locinfo.Serials = append(locinfo.Serials,ss)
 				x[l] = locinfo
 				//log.Println(x)
 			} else {
-				locinfo.LocationAbbrv = l
-				locinfo.Serials = append(locinfo.Serials,serial)
+				locinfo.Name = l
+				ss, _ := d.GetSerialInfo(l,serial)
+				locinfo.Serials = append(locinfo.Serials,ss)
 				x[l] = locinfo
 				//log.Println(x)
 			}
@@ -197,11 +199,12 @@ func (d DB) GetLocationsClusters ()(locInfos LocationsInfos,  err error) {
 	for _, value := range x {
 		locInfos = append(locInfos, value)
 	}	
+
         return locInfos,rows.Err()
 }
 
-func (d DB) GetRegisters(loc string, ser string) (regs RegistersInfos, err error){
-	log.Println("GetRegisters ", loc, ser)
+func (d DB) GetSerialInfo(loc string, ser string) (serial Serial, err error){
+	log.Println("GetSerialInfo ", loc, ser)
 	var query = "SELECT register, type FROM measurements WHERE location=? AND serial=? GROUP BY register, type;"
 	rows, err := d.Query(query,loc,ser)
 	
@@ -217,9 +220,11 @@ func (d DB) GetRegisters(loc string, ser string) (regs RegistersInfos, err error
 		if err != nil {
 			log.Println(err)
 		} else {
-			regs = append(regs, r)
+			serial.Registers = append(serial.Registers, r)
 		}
 	}
+	
+	serial.Name = ser
 
 	return
 }
