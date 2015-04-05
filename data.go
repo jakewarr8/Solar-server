@@ -49,7 +49,7 @@ func (d DB) LastMeasurement(l string, s string, r string) (p Point, err error){
 }
 
 func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.Time) (m Measurement, err error) {
-	log.Println("GetMS",l,s,r,st,et)
+	//log.Println("GetMS",l,s,r,st,et)
 	
 	var max string
 	var min string
@@ -66,11 +66,11 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 		return
 	}	
 	if st.Before(minT) {
-		log.Println("st before")
+	//	log.Println("st before")
 		st = minT
 	}
 	if et.After(maxT) {
-		log.Println("et after")
+	//	log.Println("et after")
 		et = maxT
 	}
 	
@@ -83,7 +83,7 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 		minSpan = 1.0 		
 	}
 
-	log.Println("MinSpan:",minSpan)	
+	//log.Println("MinSpan:",minSpan)	
 
 	var query = "SELECT AVG(data), FROM_UNIXTIME(TRUNCATE(UNIX_TIMESTAMP(time) / (60*?), 0) * 60 * ?) as rounded_time from measurements WHERE location=? AND serial=? AND register=? AND time>=? AND time<? group by rounded_time;"
 	
@@ -99,17 +99,19 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 	m.Serial = s
 	m.Register = r
 	for rows.Next() {
-		p := Point{}
 		var t string
-		err = rows.Scan(&p.Value, &t)
+		var v float32
+		var p []float32
+		err = rows.Scan(&v, &t)
 		if err != nil {
 			log.Println(err)
 		} else {
-			p.Time, err = time.Parse("2006-01-02 15:04:05", t)
+			ti, _ := time.Parse("2006-01-02 15:04:05", t)
+			p = append(p,float32(ti.Unix()))
+			p = append(p,v)	
 			m.Data = append(m.Data, p)
 		}
 	}
-
 
 	return m,err
 }

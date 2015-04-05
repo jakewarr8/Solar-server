@@ -1,6 +1,7 @@
 
 //GLOBALS
 //var regsMap; // Unused atm
+var registerCharts = {};
 
 /* 
 	Inital function sets up the view with some data.
@@ -85,6 +86,7 @@ function updateTables() {
 			
 			loadTableForReg(regs[reg]);
 		}
+		//setInterval(cycleTables,3000);
 		
 		
 	});
@@ -124,29 +126,19 @@ function loadTableForReg(reg) {
 		
 		console.log(data);
 		
-		var array1 = data.data;
-		var pointsArray = new Array();
-		array1.forEach(function(arrayItem) {
-			var someDate = new Date(arrayItem.time);
-			someDate = someDate.getTime();
-			var x = [someDate, arrayItem.value];
-			pointsArray.push(x);
-		});	
-		
+		//get chart then set
 		var sel = "#"+reg.name;
-		$(sel).highcharts('StockChart', {
+		registerCharts[reg.name] = $(sel).highcharts('StockChart', {
 			rangeSelector : {
 				//selected : 2
 				enabled: true
 			},
-
 			title : {
 				text : reg.name
 			},
-			
 			series : [{
 				name : 'Volts',
-				data : pointsArray,
+				data : data.data,
 				tooltip: {
 					valueDecimals: 2
 				}
@@ -154,7 +146,41 @@ function loadTableForReg(reg) {
 		});
 		
 		
+		
 	});
+}
+
+function cycleTables() {
+	$.each( registerCharts, function(index,value){
+		console.log(value); 
+		requestData(index,value);
+	})
+}
+
+function requestData(reg,chart) {
+    $.ajax({
+        url: 'http://txsolar.mooo.com/lastmeasurement/loc/TxState/ser/0001/reg/'+reg,
+        success: function(point) {
+        	
+        	//var chart = registerCharts[reg.name];
+        	
+        	var someDate = new Date(point.time);
+			someDate = someDate.getTime();
+			var x = [someDate, point.value];
+        	
+        	
+            var series = chart.series[0],
+                shift = series.data.length > 20; // shift if the series is 
+                                                 // longer than 20
+
+            // add the point
+            chart.series[0].addPoint(x, true, shift);
+            
+            // call it again after one second
+            //setTimeout(function(){requestData(reg,chart)}, 1000);    
+        },
+        cache: false
+    });
 }
 	
 function openDialog(event) {	

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
+	"html/template"
 	"log"
 	"time"
 )
@@ -31,6 +32,12 @@ func NewRouter(db DataHandler) *mux.Router {
 	fe := FrontEnd{DataHandler: db}
 
 	var routes = Routes{
+		Route{
+			"MobileView",
+			"POST",
+			"/mobile",
+			MobileView,
+		},
 		Route{
 			"LastMeasurement",
 			"GET",
@@ -65,11 +72,50 @@ func NewRouter(db DataHandler) *mux.Router {
 	
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./www/")))
 
-    return router
+	return router
 }
 
 type FrontEnd struct {
 	DataHandler
+}
+
+func MobileView(w http.ResponseWriter, r *http.Request){
+	log.Println("EHEHEHEHEHEHEHEHEHEH")
+	var data LocationTables
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(&data); err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 500)
+	} else {
+		//w.WriteHeader(http.StatusOK)
+		json, err := json.Marshal(data)	
+		if err != nil {
+			log.Println(err)
+		}
+		pagedata := &DataPayload{Data:string(json[:])}
+		RenderTemplate(w,"templates/mobile.tmpl",pagedata)
+		log.Println(data)
+	}
+	
+}
+
+type DataPayload struct {
+	Data string 
+}
+
+func RenderTemplate(w http.ResponseWriter, tmlp string, data *DataPayload) { //data interface{}
+	if data != nil {
+		log.Println(data)
+	}
+	t, err := template.ParseFiles(tmlp)
+	if err != nil {
+		log.Println(err)
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if err := t.Execute(w, data); err != nil {
+		log.Println(err)
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (fe FrontEnd) LastMeasurement(w http.ResponseWriter, r *http.Request) {

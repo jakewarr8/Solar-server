@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Texas Solar</title>
+	<link rel="shortcut icon" type="image/png" href="/favicon.ico"/>	
+
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="http://code.highcharts.com/stock/highstock.js"></script>
+		
+	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+	<link rel="stylesheet" href="/custom.css">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	
+</head>
+
+<body>
+
+	<div class="pure-g" id="tables"></div>
+	
+	<script>
+		//Server will insert JSON string here...
+		var json = '{{.Data}}';
+		
+		//var json = '[{"location":"TxState","tables":[{"serial":"0001","regs":["L1V","L2V","L2F"]},{"serial":"0002","regs":["L1V","L2V","L2F"]}]}]'
+		data = JSON.parse(json);
+		
+		//Make tables with this data
+		for (var loc in data) {
+			var name = data[loc].location //don't user var location = data[loc].location;
+			var tables = data[loc].tables;
+			
+			for (var table in tables) {
+				var serial = tables[table].serial;
+				var regs = tables[table].regs;
+				
+				for (var register in regs) {
+					var reg = regs[register];
+					//Now I have all the data needed to make a call and fill a table.
+					makeTableWith(name,serial,reg);
+				}
+				
+			}
+			
+		}
+		
+		function makeTableWith(loc,ser,reg) {
+			var url = "/measurements/location/"+loc+"/serial/"+ser+"/reg/"+reg+"/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z";
+			
+			$.getJSON(url, function(data) {
+				//CREATE HTML
+				var tables = document.getElementById("tables");
+				var gridbox = document.createElement('div');
+				gridbox.setAttribute('class', 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-3');
+
+				var tablebox = document.createElement('div');
+				tablebox.setAttribute('class', 'gr');
+
+				var container = document.createElement('div');
+				container.setAttribute('class', 'tc');
+				container.setAttribute('id', reg);
+
+				tablebox.appendChild(container);
+				gridbox.appendChild(tablebox);
+				tables.appendChild(gridbox);
+
+	
+				//Select chart then set the chart view
+				var sel = "#"+reg;
+				$(sel).highcharts('StockChart', {
+					credits: {
+            			enabled: false
+        			},
+					rangeSelector : {
+						allButtonsEnabled: false,
+						enabled: true
+					},
+					title : {
+						text : reg
+					},
+					series : [{
+						name : 'Volts',
+						data : data.data,
+						tooltip: {
+							valueDecimals: 2
+						}
+					}]
+				});
+				
+			}); 
+			
+		}
+		
+	</script>
+
+</body>
+</html>

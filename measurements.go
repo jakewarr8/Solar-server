@@ -14,7 +14,7 @@ type Measurement struct {
 	Serial		string		`json:"serial"`
 	Register	string		`json:"register"`
 	Type		string		`json:"type"`
-	Data		[]Point		`json:"data"`
+	Data		[][]float32	`json:"data"`
 }
 
 type Measurements []Measurement
@@ -49,4 +49,17 @@ type Measurementx struct {
 	Serial		string
 	TimeS		time.Time
 }
+
+//***Mobile***
+type Table struct {
+	Serial		string		`json:"serial"`
+	Registers	[]string	`json:"regs"`
+}
+
+type LocationTable struct {
+	Location	string		`json:"location"`
+	Tables		[]Table		`json:"tables"`	
+}
+
+type LocationTables []LocationTable
 
