@@ -25,26 +25,26 @@ $(document).ready(function () {
 	obj: raw json from the /locationsInfo call
 */
 function populate(obj) {
-	var s1 = document.getElementById("slct1");
-	s1.innerHTML = "";
+	//var s1 = document.getElementById("slct1");
+	//s1.innerHTML = "";
 
 	for (var loc in obj) {
 		var location = obj[loc].location;
  		var serials = obj[loc].serials;
- 
+ /*
  		var newOptGroup = document.createElement("optgroup");
  		newOptGroup.label = location;
  		s1.appendChild(newOptGroup);
- 
+ */
  		for (var ser in serials) {
  			var serial = serials[ser];
  			var regs =  serial.regs;
- 
+ /*
  			var newOption = document.createElement("option");
  			newOption.value = serial.serial;
  			newOption.innerHTML = serial.serial;
  			newOptGroup.appendChild(newOption);
- 			
+*/ 			
  			for (var reg in regs) {
  				loadTableForReg(location,serial.serial,regs[reg].name);
  			}
@@ -88,12 +88,12 @@ function loadTableForReg(loc,ser,reg) {
 		container.setAttribute('class', 'tc');
 		container.setAttribute('id', reg);
 		
-		var btn = document.createElement('BUTTON');
-		btn.setAttribute('class', 'opener');
-		$(btn).click(openDialog);
-		var t = document.createTextNode("Show History");
-		btn.appendChild(t); 
-		tablebox.appendChild(btn);
+// 		var btn = document.createElement('BUTTON');
+// 		btn.setAttribute('class', 'opener');
+// 		$(btn).click(openDialog);
+// 		var t = document.createTextNode("Show History");
+// 		btn.appendChild(t); 
+// 		tablebox.appendChild(btn);
 		
 		tablebox.appendChild(container);
 		gridbox.appendChild(tablebox);
@@ -104,6 +104,29 @@ function loadTableForReg(loc,ser,reg) {
 		//get chart then set
 		var sel = "#"+reg;
 		registerCharts[reg] = $(sel).highcharts('StockChart', {
+			chart : {
+				events : {
+					load : function () {
+
+						// set up the updating of the chart each second
+						var series = this.series[0];
+						setInterval(function () {
+							var url = 'http://txsolar.mooo.com/lastmeasurement/loc/TxState/ser/0001/reg/'+reg;
+							$.getJSON(url, function(point) { 
+									var someDate = new Date(point.time);
+									someDate = someDate.getTime();
+									var x = [someDate, point.value];
+									series.addPoint(x, true, true);
+							});
+						}, 60000);
+					}
+				}
+			},
+			
+			credits: {
+            	enabled: false
+        	},
+			
 			rangeSelector : {
 				//selected : 2
 				enabled: true
@@ -120,61 +143,16 @@ function loadTableForReg(loc,ser,reg) {
 			}]
 		});
 		
+		//requestData(reg,container);
+		
 		
 		
 	});
 }
 
-function cycleTables() {
-	$.each( registerCharts, function(index,value){
-		console.log(value); 
-		requestData(index,value);
-	})
-}
-
-function requestData(reg,chart) {
-    $.ajax({
-        url: 'http://txsolar.mooo.com/lastmeasurement/loc/TxState/ser/0001/reg/'+reg,
-        success: function(point) {
-        	
-        	//var chart = registerCharts[reg.name];
-        	
-        	var someDate = new Date(point.time);
-			someDate = someDate.getTime();
-			var x = [someDate, point.value];
-        	
-        	
-            var series = chart.series[0],
-                shift = series.data.length > 20; // shift if the series is 
-                                                 // longer than 20
-
-            // add the point
-            chart.series[0].addPoint(x, true, shift);
-            
-            // call it again after one second
-            //setTimeout(function(){requestData(reg,chart)}, 1000);    
-        },
-        cache: false
-    });
-}
-	
 function openDialog(event) {	
 	$( "#dialog" ).dialog( "open" );
 	console.log(event);
-}
-
-
-
-function pastMonth() {
-//Get data from past month
-//Reload Chart with data from the past month
-//
-}
-function pastWeek() {
-//Same thing, just with past week
-}
-function pastDay() {
-//Same thing with past day
 }
 
 //This is just some code for the functionality of the checkboxes

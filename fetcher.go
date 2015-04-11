@@ -10,7 +10,7 @@ import (
 
 func NewFetcher(db DataHandler) {
 	
-	r, err := http.Get("http://egauge7055.egaug.es/cgi-bin/egauge?inst&v1")
+	r, err := http.Get("http://egauge7056.egaug.es/cgi-bin/egauge?inst&v1")
 	if err != nil {
 		fmt.Println("Egauge Appers to be down!!!")
 		return;

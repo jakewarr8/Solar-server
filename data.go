@@ -101,13 +101,13 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 	for rows.Next() {
 		var t string
 		var v float32
-		var p []float32
+		var p []interface{}
 		err = rows.Scan(&v, &t)
 		if err != nil {
 			log.Println(err)
 		} else {
 			ti, _ := time.Parse("2006-01-02 15:04:05", t)
-			p = append(p,float32(ti.Unix()))
+			p = append(p,(ti.Unix()*1000))
 			p = append(p,v)	
 			m.Data = append(m.Data, p)
 		}

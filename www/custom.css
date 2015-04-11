@@ -7,8 +7,21 @@
 	padding: 5px 5px 5px 5px;
 }
 
+.content{
+	background-color: white;
+	width: 90%;
+	margin: 0 auto 0 auto;
+	padding: 1em;
+	box-shadow: 0em 0em .5em #888888;
+	border-radius: 4px;
+}
+
+body{
+	background-color: #F1F1F1;
+}
+
 .tc {
-	height: 300px
+	height: 300px;
 	
 }
 
@@ -18,4 +31,14 @@ ul {
 }
 li {
   margin: 0 0 5px 0;
+}
+
+.dark-grey{
+	background-color: #8C7E6A;
+}
+
+.center{
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
 }

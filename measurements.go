@@ -14,7 +14,7 @@ type Measurement struct {
 	Serial		string		`json:"serial"`
 	Register	string		`json:"register"`
 	Type		string		`json:"type"`
-	Data		[][]float32	`json:"data"`
+	Data		[][]interface{}	`json:"data"`
 }
 
 type Measurements []Measurement
