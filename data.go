@@ -65,14 +65,14 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 		log.Println(err)
 		return
 	}	
-	if st.Before(minT) {
+//	if st.Before(minT) {
 	//	log.Println("st before")
 		st = minT
-	}
-	if et.After(maxT) {
+//	}
+//	if et.After(maxT) {
 	//	log.Println("et after")
 		et = maxT
-	}
+//	}
 	
         var timedif = et.Unix() - st.Unix()
         var minSpan float32
@@ -100,7 +100,7 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 	m.Register = r
 	for rows.Next() {
 		var t string
-		var v float32
+		var v float64
 		var p []interface{}
 		err = rows.Scan(&v, &t)
 		if err != nil {

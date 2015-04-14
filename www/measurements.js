@@ -111,7 +111,7 @@ function loadTableForReg(loc,ser,reg) {
 						// set up the updating of the chart each second
 						var series = this.series[0];
 						setInterval(function () {
-							var url = 'http://txsolar.mooo.com/lastmeasurement/loc/TxState/ser/0001/reg/'+reg;
+							var url = 'http://txsolar.mooo.com/lastmeasurement/loc/'+loc+'/ser/'+ser+'/reg/'+reg;
 							$.getJSON(url, function(point) { 
 									var someDate = new Date(point.time);
 									someDate = someDate.getTime();
@@ -126,7 +126,32 @@ function loadTableForReg(loc,ser,reg) {
 			credits: {
             	enabled: false
         	},
-			
+        	exporting: {
+        		buttons: {
+					contextButton: {
+						menuItems: [{
+							text: 'Export to PNG (small)',
+							onclick: function() {
+								this.exportChart({
+									width: 250
+								});
+							}
+						}, {
+							text: 'Export to PNG (large)',
+							onclick: function() {
+								this.exportChart(); // 800px by default
+							}
+						}, {
+							text: 'Export to CSV',
+							onclick: function() {
+								window.open('/getcsv/loc/'+loc+'/ser/'+ser+'/reg/'+reg);
+							}
+						}, 
+						null
+						]
+					}
+				}
+        	},
 			rangeSelector : {
 				//selected : 2
 				enabled: true
@@ -141,7 +166,15 @@ function loadTableForReg(loc,ser,reg) {
 					valueDecimals: 2
 				}
 			}]
+			
 		});
+		
+// 		Highcharts.getOptions().exporting.buttons.contextButton.menuItems.push({
+// 			text: 'My new button',
+// 			onclick: function () {
+// 				alert('OK');
+// 			}
+// 		});
 		
 		//requestData(reg,container);
 		

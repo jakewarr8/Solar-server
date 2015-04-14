@@ -2,12 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"strconv"
+	"encoding/csv"
+	"os"
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
 	"html/template"
 	"log"
 	"time"
+	"path"
 )
 
 type Route struct {
@@ -43,18 +47,26 @@ func NewRouter(db DataHandler) *mux.Router {
 			"/lastmeasurement/loc/{loc}/ser/{ser}/reg/{reg}",
 			fe.LastMeasurement,
 		},
+		
 		Route{
-                        "MeasurementsShow",
-                        "GET",
-                        "/measurements/location/{location}/serial/{serial}/reg/{reg}/start/{start}/end/{end}",
-                        fe.MeasurementsShow,
-                },
+			"GetCSV",
+			"GET",
+			"/getcsv/loc/{loc}/ser/{ser}/reg/{reg}",
+			fe.GetCSV,
+		},
+		
 		Route{
-                        "ShowLocationsClusters",
-                        "GET",
-                        "/locationsInfo",
-                        fe.ShowLocationsClusters,
-                },
+			"MeasurementsShow",
+			"GET",
+			"/measurements/location/{location}/serial/{serial}/reg/{reg}/start/{start}/end/{end}",
+			fe.MeasurementsShow,
+		},
+		Route{
+			"ShowLocationsClusters",
+			"GET",
+			"/locationsInfo",
+			fe.ShowLocationsClusters,
+		},
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -181,6 +193,46 @@ func (fe FrontEnd) ShowLocationsClusters(w http.ResponseWriter, r *http.Request)
                 log.Println(err)
         }
 
+}
+
+func (fe FrontEnd) GetCSV(w http.ResponseWriter, r *http.Request) {
+	log.Println("test")
+	
+	vars := mux.Vars(r)
+	loc := vars["loc"]
+	ser := vars["ser"]
+	reg := vars["reg"]
+	
+	ms, err := fe.DataHandler.GetMeasurements(loc,ser,reg,time.Now(),time.Now())
+//	log.Println(ms)
+	if err != nil { 
+		log.Println(err)
+	}
+	
+	csvfile, err := os.Create("output.csv")
+	if err != nil {
+	    fmt.Println("Error:", err)
+	    return
+	}
+	defer csvfile.Close()
+	
+//	records := [][]string{{"item1", "value1"}, {"item2", "value2"}, {"item3", "value3"}}
+	
+	writer := csv.NewWriter(csvfile)
+//	log.Println(ms.Data)
+	for _, record := range ms.Data {
+		r := []string{strconv.FormatInt(record[0].(int64),10),strconv.FormatFloat(record[1].(float64), 'f', -1, 32)}
+//		log.Println(r)
+	  	err := writer.Write(r)
+	  	if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+	}
+	writer.Flush()
+
+	fp := path.Join(".", "output.csv")
+	http.ServeFile(w, r, fp)		  
 }
 
 

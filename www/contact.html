@@ -15,8 +15,6 @@
 	<link rel="stylesheet" href="/menu.css">
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
-		
 </head>
 
 <body>
@@ -31,49 +29,39 @@
 		<div class="pure-u-1 pure-u-md-1-2">
 			<div class="pure-menu pure-menu-horizontal custom-menu-3 custom-can-transform" style="height:100%">
 				<ul class="pure-menu-list">
-					<li class="pure-menu-item"><a href="#" class="pure-menu-link">Contact</a></li>
-					<li class="pure-menu-item"><a href="#" class="pure-menu-link">Manager</a></li>
+					<li class="pure-menu-item"><a href="contact.html" class="pure-menu-link">Contact</a></li>
+					<li class="pure-menu-item"><a href="login.html" class="pure-menu-link">Manager</a></li>
 				</ul>
 			</div>
 		</div>
-	</div>
+</div>
 	
-	<div class="content">
-	
+<div class="shadowed content">
 	
 	<form class="pure-form pure-form-stacked">
-    <fieldset>
-			<strong>Contact Us</strong>
+    
+		<h3 class="center">Contact Us</h3>
 
-			
-			<input id="name" type="text" placeholder="name">
-		
-			
-			<input id="email" type="email" placeholder="Email Address">
-		
+		<div class="center" style="max-width:50em">
 			<div class="pure-g">
-				<div class="pure-u-1 pure-u-md-3-4 pure-u-lg-1-2">
-				<textarea id="comments" style="height:8em" class="pure-input-1" placeholder="Comments"></textarea>
-				</div> 
+				<div class="pure-u-1 pure-u-md-1-2">
+					<input class="pure-u-1" type="text" placeholder="Name">
+				</div>
+				<div class="pure-u-1 pure-u-md-1-2">
+					<input class="pure-u-1" type="email" placeholder="Email">
+				</div>
+				<textarea style="height:8em" class="pure-input-1" placeholder="Comments"></textarea>
 			</div>
-			
-			<div class="pure-g">
-				<div class="pure-u-1-3">
-				</div>
-				<div class="pure-u-sm-1-3 pure-u-md-1">
-				<button type="submit" class="dark-grey pure-button pure-button-primary">Submit</button>
-				</div>
-				<div class="pure-u-1-3">
-				</div>
-			</div>
-			
-	</fieldset> 
+		</div>
+		
+		<div class="pure-g center" style="max-width:20em">		
+			<button type="submit" class="dark-grey pure-u-1 pure-button pure-button-primary">Submit</button>
+		</div>
 		
 	</form>
 	
-	</div>
-
-
+</div>
+	
 <script>
 	(function (window, document) {
 		var menu = document.getElementById('menu'),
