@@ -66,11 +66,11 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 		return
 	}	
 //	if st.Before(minT) {
-	//	log.Println("st before")
+//		log.Println("st before")
 		st = minT
 //	}
 //	if et.After(maxT) {
-	//	log.Println("et after")
+//		log.Println("et after")
 		et = maxT
 //	}
 	
@@ -145,7 +145,7 @@ func (d DB) SetMeasurements(m Measurementx) (err error) {
         }()
 	
 	for _,r := range m.KeyPairs {
-		_, err = stmt.Exec(m.Location, m.Serial, m.TimeS, r.Nk, r.Tk, r.Data)
+		_, err = stmt.Exec(m.Location, m.Serial, m.TimeS.Local(), r.Nk, r.Tk, r.Data)
 		if err != nil {
 			log.Println(err)
 			return
@@ -228,3 +228,71 @@ func (d DB) GetSerialInfo(loc string, ser string) (serial Serial, err error){
 
 	return
 }
+
+func (d DB) SetNewSerial(u_id int, serial string) (err error) {
+	tx, err := d.Begin()
+	if err != nil {
+		return
+	}
+
+	var query = "INSERT INTO serials (serial,user_id) VALUES(?,?);"
+	stmt, err := tx.Prepare(query)
+	if err != nil {
+		return
+	}
+	
+	defer func () {
+		if err == nil {
+			tx.Commit()
+			log.Println("Commit User")
+		} else {
+			tx.Rollback()
+			log.Println("Rollback User")
+		}
+		stmt.Close()
+	}()
+
+	_, err = stmt.Exec(serial,u_id)
+	return
+}
+
+func (d DB) SetNewUser(un string, pw string)(id int64, err error) {
+	salt, err := Crypt([]byte(pw))
+	if err != nil {
+		return
+	}
+
+	hash := HashPassword([]byte(pw), salt)
+	tx, err := d.Begin()
+	if err != nil {
+		return
+	}	
+	
+	var query = "INSERT INTO users (pwh,pws,uname) VALUES (?, ?, ?);"
+	stmt, err := tx.Prepare(query)
+	if err != nil {
+		return
+	}
+	
+	defer func () {
+		if err == nil {
+			tx.Commit()
+			log.Println("Commit User")
+		} else {
+			tx.Rollback()
+			log.Println("Rollback User")
+		}
+		stmt.Close()
+	}()
+
+	r, err := stmt.Exec(hash,salt,un)
+	if err != nil {
+		return
+	}	
+
+	id, err = r.LastInsertId()
+
+	return
+}
+
+

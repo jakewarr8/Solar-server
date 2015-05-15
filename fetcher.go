@@ -18,27 +18,29 @@ func NewFetcher(db DataHandler) {
 	defer r.Body.Close()	
 	
 	contents, err := ioutil.ReadAll(r.Body)
-	checkError(err)	
+	if err != nil {
+		fmt.Println("Fatal error ", err.Error())
+		return
+	}
 
 	mx := Measurementx{}
 	err = xml.Unmarshal(contents,&mx)
-	checkError(err)
-
-//	fmt.Printf("%s\n", string(contents))
-//	fmt.Println(mx)
+	if err != nil {
+		fmt.Println("Fatal error ", err.Error())
+		return
+	}	
 	
-	fmt.Println(time.Now().Format(time.RFC850))
+/*
+//	fmt.Printf("%s\n", string(contents))
+//	fmt.Println(mx)	
+//	fmt.Println(time.Now().Format(time.RFC850))	
+//	fmt.Println(time.Now().Local())
+*/
 
 	mx.Location = "TxState"
-	mx.Serial = "0001"
 	mx.TimeS = time.Now()		
 	
 	db.SetMeasurements(mx)			
 	
 }
 
-func checkError(err error) {
-	if err != nil {
-		fmt.Println("Fatal error ", err.Error())	
-	}
-}

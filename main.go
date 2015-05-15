@@ -14,7 +14,7 @@ func main() {
                 log.Fatal(err)
        	}
 
-        defer db.Close(); //????
+        defer db.Close();
 
 	ticker := time.NewTicker(time.Minute)
 	go func() {

@@ -46,7 +46,7 @@ function populate(obj) {
  			newOptGroup.appendChild(newOption);
 */ 			
  			for (var reg in regs) {
- 				loadTableForReg(location,serial.serial,regs[reg].name);
+ 				loadTableForReg(location,serial.serial,regs[reg].name,regs[reg].type);
  			}
  			
  		}
@@ -59,20 +59,26 @@ function populate(obj) {
 */
 function stringForType(type) {
 	if (type == 'I') {
-		return "Current (Amps)";
+		return "Ampère (I)";
 	}
 	else if (type == 'F') {
 		return "Frequency (Hz)";
 	}
 	else if (type == 'V') {
 		return "Voltage (V)";
+	} 
+	else if (type == 'Ee') {
+		return "Irradiance (W/m²)";
+	}
+	else if (type == 'T'){
+		return "Temperature (C)";
 	}
 }
 
 /*
-	Loads a table for a single registor. Called by updateTables().
+	Loads a table for a single register. Called by updateTables().
 */
-function loadTableForReg(loc,ser,reg) {
+function loadTableForReg(loc,ser,reg,type) {
 	var url = "/measurements/location/"+loc+"/serial/"+ser+"/reg/"+reg+"/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z";
 	$.getJSON(url, function(data) { 
 	
@@ -160,7 +166,7 @@ function loadTableForReg(loc,ser,reg) {
 				text : reg
 			},
 			series : [{
-				name : 'Volts',
+				name : stringForType(type),
 				data : data.data,
 				tooltip: {
 					valueDecimals: 2

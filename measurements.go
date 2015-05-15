@@ -46,7 +46,7 @@ type Measurementx struct {
 	KeyPairs	[]KeyPairx	`xml:"r"`	
 	Time		int64		`xml:"ts"`
 	Location	string
-	Serial		string
+	Serial		string		`xml:"serial,attr"`
 	TimeS		time.Time
 }
 

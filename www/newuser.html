@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<title>Login</title>
+	<title>New User</title>
 	<link rel="shortcut icon" type="image/png" href="/favicon.ico"/>	
 
 	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -35,17 +35,28 @@
 </div>
 
 <div class="content shadowed" style="max-width:35em">
-	<form class="pure-form pure-form-stacked">
+	<form class="pure-form pure-form-stacked" method="post" action="/newuser">
 	
-		<h3 class="center">Login</h3>
+		<h3 class="center">New Account</h3>
 		
 		<div class="pure-g center" style="max-width:25em">
-			<input type="text" class="pure-u-1" placeholder="Username">
-			<input type="password" class="pure-u-1" placeholder="Password">
+			<h5 class="pure-u-1">Account Info:</h5>
+			<input type="text" name="un" class="pure-u-1" placeholder="Location">
+			<input type="password" name="pw" class="pure-u-1" placeholder="Password">
+			<input type="password" class="pure-u-1" placeholder="Verify Password">
+			
+			<h5 class="pure-u-1">Device Info:</h5>
+			<input type="text" name="ser" class="pure-u-1" placeholder="eGauge Serial">
+			
 			<button type="submit" class="dark-grey pure-u-1 pure-button pure-button-primary">Submit</button>
 		</div>
 		
-		<p class="center">New account? <a href="/newuser.html">Create one here.</a></p>
+		
+		<h4 class="center">Note</h4>
+		<p class="center">Our systems work collectively with an eGauge device. 
+		Therfore if a valid eGauge device can not be provided an account can not be created. 
+		Read about eGauge data loggers <a href="https://www.egauge.net/">here</a>.</p>
+			
 		
 	</form>
 </div>
