@@ -46,7 +46,7 @@ type Measurementx struct {
 	KeyPairs	[]KeyPairx	`xml:"r"`	
 	Time		int64		`xml:"ts"`
 	Location	string
-	Serial		string		`xml:"serial,attr"`
+	Serial		string		/*`xml:"serial,attr"`*/
 	TimeS		time.Time
 }
 
@@ -65,8 +65,11 @@ type LocationTables []LocationTable
 
 //***LocationInfoV2***
 type Serial struct {
+	Id		int64
+	User_Id		int64
 	Name		string		`json:"serial"`
 	Registers	[]Register	`json:"regs"`	
+	
 }
 
 type Location struct {

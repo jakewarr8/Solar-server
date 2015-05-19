@@ -1,3 +1,19 @@
+
+/*MENU*/
+.header {
+    background-color: #4F1F26;
+    font-size: 1.0em;
+}
+
+.pure-menu-header {
+	text-align:right;
+}
+
+.pure-menu-header a:hover {
+	color: #000;
+}
+
+/*Tables*/
 .gr {
 	background-color: white;
 	margin: .6em;
@@ -7,13 +23,15 @@
 }
 
 .tc {
-	height: 250px;
+	height: 275px;
 }
 
+/*Other*/
 .content{
 	width: 90%;
-	margin: 0 auto 0 auto;
-	padding: 1.2em;
+	margin: 1em auto 1em auto;
+	padding: 1em;
+	
 }
 
 .shadowed{
@@ -30,6 +48,10 @@ body{
 	background-color: #8C7E6A;
 }
 
+.white {
+    color:#fff;
+}
+
 .center{
 	margin-left: auto;
 	margin-right: auto;
@@ -41,4 +63,11 @@ h5 {
 	margin: 2px 0 2px 0;
 }
 
+.checkButton {
+	margin-top: .5em;
+	margin-bottom: .5em;
+	width: 80%;
+	background-color: #83ACFF;
+	color:#fff;
+}
 

@@ -32,8 +32,11 @@ type DataHandler interface {
 	SetMeasurements(Measurementx) (error)
 	GetLocationsClusters ()(LocationsInfoSets, error)
 	
+	GetUserWithId(id int64) (u User,err error)
 	SetNewUser(un string, pw string)(id int64, err error)
-	SetNewSerial(u_id int, serial string) (err error)
+
+	SetNewSerial(u_id int64, serial string) (err error)
+	GetSerials() (ss []Serial, err error)
 }
 
 func NewRouter(db DataHandler) *mux.Router {
@@ -83,6 +86,18 @@ func NewRouter(db DataHandler) *mux.Router {
 			"/newuser",
 			fe.SetNewUser,
 		},
+		Route{
+			"Manager",
+			"GET",
+			"/manager",
+			Manager,
+		},
+		Route {
+			"Auth",
+			"POST",
+			"/auth",
+			fe.Auth,
+		},	
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -114,6 +129,9 @@ func RenderTemplate(w http.ResponseWriter, tmlp string, data *DataPayload) { //d
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+func Manager(w http.ResponseWriter, r *http.Request){
+	fmt.Fprintln(w,"Manager")		
+}
 
 func MobileView(w http.ResponseWriter, r *http.Request){
 	log.Println("EHEHEHEHEHEHEHEHEHEH")
@@ -136,6 +154,10 @@ func MobileView(w http.ResponseWriter, r *http.Request){
 
 type FrontEnd struct {
 	DataHandler
+}
+
+func (fe FrontEnd) Auth(w http.ResponseWriter, r *http.Request) {
+	
 }
 
 func (fe FrontEnd) SetNewUser(w http.ResponseWriter, r *http.Request) {
@@ -163,8 +185,12 @@ func (fe FrontEnd) SetNewUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}	
-
+	}
+	
+	err = fe.DataHandler.SetNewSerial(id,ser)	
+	if err != nil {
+		fmt.Fprintln(w,"Make sure your serial is correct.")
+	}
 }
 
 func (fe FrontEnd) SetMeasurement(w http.ResponseWriter, r *http.Request) {
@@ -188,8 +214,7 @@ func (fe FrontEnd) LastMeasurement(w http.ResponseWriter, r *http.Request) {
 	
 	p, err := fe.DataHandler.LastMeasurement(loc, ser, reg) 
 	if err != nil {
-		fmt.Fprintln(w,"No Measurement Found.")
-		
+		http.Error(w, err.Error(), http.StatusInternalServerError)	
 	} else {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)

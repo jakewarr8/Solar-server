@@ -14,11 +14,33 @@ $(document).ready(function () {
 	
 	var url = '/locationsInfo';
 	$.getJSON(url, function(data) {
+		sel_pop(data);
 		populate(data);
-		//updateTables()
+		
 	});
 	
 });
+
+function sel_pop(obj) {
+	for (var loc in obj) {
+		var location = obj[loc].location;
+ 		var serials = obj[loc].serials;
+ 		
+		for (var ser in serials) {
+			var serial = serials[ser];
+			var name = serial.serial
+			var regs =  serial.regs;
+			
+			$("#loc-ser_selector").append('<div class="pure-u-1"><h5>'+location+' - '+name+'</h5></div>');
+			
+			for (var reg in regs) {
+ 				var register = regs[reg];
+ 				//$("#loc-ser_selector").append('<div class="pure-u-1-2 pure-u-md-1-3"><label for="'+location+serial.serial+register.name+'" class="pure-checkbox"><input id="'+location+serial.serial+register.name+'" type="checkbox" value="">'+register.name+'</label></div>');
+ 				$("#loc-ser_selector").append('<div class="pure-u-1-2 pure-u-md-1-3 center"><label for="'+location+serial.serial+register.name+'" class=" pure-checkbox"><div class="pure-button pure-u-1 checkButton"><input id="'+location+serial.serial+register.name+'" type="checkbox" value="">'+register.name+'</div></label></div>');
+ 			}
+		}
+	}
+}
 
 /*
 	Populate location/serial selecter
@@ -85,14 +107,14 @@ function loadTableForReg(loc,ser,reg,type) {
 		//CREATE HTML
 		var tables = document.getElementById("tables");
 		var gridbox = document.createElement('div');
-		gridbox.setAttribute('class', 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-3');
+		gridbox.setAttribute('class', 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-2');
 		
 		var tablebox = document.createElement('div');
 		tablebox.setAttribute('class', 'gr');
 		
 		var container = document.createElement('div');
 		container.setAttribute('class', 'tc');
-		container.setAttribute('id', reg);
+		container.setAttribute('id', ser+reg);
 		
 // 		var btn = document.createElement('BUTTON');
 // 		btn.setAttribute('class', 'opener');
@@ -108,7 +130,7 @@ function loadTableForReg(loc,ser,reg,type) {
 		console.log(data);
 		
 		//get chart then set
-		var sel = "#"+reg;
+		var sel = "#"+ser+reg;
 		registerCharts[reg] = $(sel).highcharts('StockChart', {
 			chart : {
 				events : {
@@ -163,7 +185,7 @@ function loadTableForReg(loc,ser,reg,type) {
 				enabled: true
 			},
 			title : {
-				text : reg
+				text : ser+": "+reg
 			},
 			series : [{
 				name : stringForType(type),

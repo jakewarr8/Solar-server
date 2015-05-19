@@ -24,12 +24,10 @@ func (d DB) LastMeasurement(l string, s string, r string) (p Point, err error){
 	var rq = "select MAX(time) from measurements where location=? AND serial=? AND register=?;"
 	err = d.QueryRow(rq,l,s,r).Scan(&max)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 	maxT, err := time.Parse("2006-01-02 15:04:05", max)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 	
@@ -37,7 +35,6 @@ func (d DB) LastMeasurement(l string, s string, r string) (p Point, err error){
 	rq = "select data from measurements where location=? AND serial=? AND register=? AND time=?;"
 	err = d.QueryRow(rq,l,s,r,maxT).Scan(&data)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 	
@@ -117,7 +114,6 @@ func (d DB) GetMeasurements(l string, s string, r string, st time.Time, et time.
 }
 
 func (d DB) SetMeasurements(m Measurementx) (err error) {
-	
 	// Create tx
 	tx, err := d.Begin()	
 	if err != nil {
@@ -229,7 +225,7 @@ func (d DB) GetSerialInfo(loc string, ser string) (serial Serial, err error){
 	return
 }
 
-func (d DB) SetNewSerial(u_id int, serial string) (err error) {
+func (d DB) SetNewSerial(u_id int64, serial string) (err error) {
 	tx, err := d.Begin()
 	if err != nil {
 		return
@@ -244,16 +240,48 @@ func (d DB) SetNewSerial(u_id int, serial string) (err error) {
 	defer func () {
 		if err == nil {
 			tx.Commit()
-			log.Println("Commit User")
+			log.Println("Commit Serial")
 		} else {
 			tx.Rollback()
-			log.Println("Rollback User")
+			log.Println("Rollback Serial")
 		}
 		stmt.Close()
 	}()
 
 	_, err = stmt.Exec(serial,u_id)
 	return
+}
+
+func (d DB) GetSerials() (ss []Serial, err error) {
+	var query = "SELECT serial, user_id, id FROM serials;"
+	rows, err := d.Query(query)
+	
+	if err != nil {
+		log.Println(err)
+		return
+	}	
+	defer rows.Close()
+	
+	for rows.Next() {
+		s := Serial{}
+		err = rows.Scan(&s.Name, &s.User_Id, &s.Id)
+		if err != nil {
+			log.Println(err)
+		} else {
+			ss = append(ss, s)
+		}
+	}
+	return	
+}
+
+func (d DB) GetUserWithId(id int64) (u User,err error) {
+	var query = "SELECT pwh, pws, uname, id FROM users WHERE id=?;"
+	err = d.QueryRow(query,id).Scan(&u.Hash,&u.Salt,&u.UserName,&u.ID)
+        if err != nil {
+                log.Println(err)
+                return
+        }
+	return	
 }
 
 func (d DB) SetNewUser(un string, pw string)(id int64, err error) {
