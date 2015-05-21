@@ -15,7 +15,7 @@ $(document).ready(function () {
 	var url = '/locationsInfo';
 	$.getJSON(url, function(data) {
 		sel_pop(data);
-		populate(data);
+		//populate(data);
 		
 	});
 	
@@ -35,8 +35,11 @@ function sel_pop(obj) {
 			
 			for (var reg in regs) {
  				var register = regs[reg];
- 				//$("#loc-ser_selector").append('<div class="pure-u-1-2 pure-u-md-1-3"><label for="'+location+serial.serial+register.name+'" class="pure-checkbox"><input id="'+location+serial.serial+register.name+'" type="checkbox" value="">'+register.name+'</label></div>');
- 				$("#loc-ser_selector").append('<div class="pure-u-1-2 pure-u-md-1-3 center"><label for="'+location+serial.serial+register.name+'" class=" pure-checkbox"><div class="pure-button pure-u-1 checkButton"><input id="'+location+serial.serial+register.name+'" type="checkbox" value="">'+register.name+'</div></label></div>');
+ 				var is = location+"-"+serial.serial+"-"+register.name+"-"+register.type;
+ 				$("#loc-ser_selector").append('<div class="pure-u-1-2 pure-u-md-1-3"><div class="center"><label for="'+is+'" class=" pure-checkbox"><div class="pure-button pure-u-1 checkButton"><input id="'+is+'" type="checkbox" value="" checked>'+register.name+'</div></label></div></div>');
+ 				$("#"+is).change(checkboxclicked);
+ 				
+ 				loadTableForReg(location,serial.serial,register.name,register.type);
  			}
 		}
 	}
@@ -108,6 +111,7 @@ function loadTableForReg(loc,ser,reg,type) {
 		var tables = document.getElementById("tables");
 		var gridbox = document.createElement('div');
 		gridbox.setAttribute('class', 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-2');
+		gridbox.setAttribute('id', ser+reg+'g');
 		
 		var tablebox = document.createElement('div');
 		tablebox.setAttribute('class', 'gr');
@@ -214,6 +218,17 @@ function loadTableForReg(loc,ser,reg,type) {
 function openDialog(event) {	
 	$( "#dialog" ).dialog( "open" );
 	console.log(event);
+}
+
+function checkboxclicked(event) {	
+	//$( "#dialog" ).dialog( "open" );
+	console.log(event.target.checked + event.target.id);
+	var res = event.target.id.split("-");
+	if (event.target.checked) {
+		loadTableForReg(res[0],res[1],res[2],res[3])
+	} else {
+		$("#"+res[1]+res[2]+"g").remove();
+	}
 }
 
 //This is just some code for the functionality of the checkboxes

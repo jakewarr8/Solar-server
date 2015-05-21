@@ -44,60 +44,16 @@ func NewRouter(db DataHandler) *mux.Router {
 	fe := FrontEnd{DataHandler: db}
 
 	var routes = Routes{
-		Route{
-			"MobileView",
-			"POST",
-			"/mobile",
-			MobileView,
-		},
-		Route{
-			"LastMeasurement",
-			"GET",
-			"/lastmeasurement/loc/{loc}/ser/{ser}/reg/{reg}",
-			fe.LastMeasurement,
-		},
-		Route{
-			"GetCSV",
-			"GET",
-			"/getcsv/loc/{loc}/ser/{ser}/reg/{reg}",
-			fe.GetCSV,
-		},
-		Route{
-			"MeasurementsShow",
-			"GET",
-			"/measurements/location/{location}/serial/{serial}/reg/{reg}/start/{start}/end/{end}",
-			fe.MeasurementsShow,
-		},
-		Route{
-			"ShowLocationsClusters",
-			"GET",
-			"/locationsInfo",
-			fe.ShowLocationsClusters,
-		},
-		Route{
-			"SetMeasurement",
-			"POST",
-			"/setmeasurement",
-			fe.SetMeasurement,
-		},
-		Route{
-			"NewAccount",
-			"POST",
-			"/newuser",
-			fe.SetNewUser,
-		},
-		Route{
-			"Manager",
-			"GET",
-			"/manager",
-			Manager,
-		},
-		Route {
-			"Auth",
-			"POST",
-			"/auth",
-			fe.Auth,
-		},	
+		Route{"Index","GET","/",Index,},
+		Route{"MobileView","POST","/mobile",MobileView,},
+		Route{"LastMeasurement","GET","/lastmeasurement/loc/{loc}/ser/{ser}/reg/{reg}",fe.LastMeasurement,},
+		Route{"GetCSV","GET","/getcsv/loc/{loc}/ser/{ser}/reg/{reg}",fe.GetCSV,},
+		Route{"MeasurementsShow","GET","/measurements/location/{location}/serial/{serial}/reg/{reg}/start/{start}/end/{end}",fe.MeasurementsShow,},
+		Route{"ShowLocationsClusters","GET","/locationsInfo",fe.ShowLocationsClusters,},
+		Route{"SetMeasurement","POST","/setmeasurement",fe.SetMeasurement,},
+		Route{"NewAccount","POST","/newuser",fe.SetNewUser,},
+		Route{"Manager","GET","/manager",Manager,},
+		Route{"Auth","POST","/auth",fe.Auth,},	
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -119,16 +75,22 @@ func RenderTemplate(w http.ResponseWriter, tmlp string, data *DataPayload) { //d
 	if data != nil {
 		log.Println(data)
 	}
-	t, err := template.ParseFiles(tmlp)
+	t, err := template.ParseFiles("templates/layout.tmpl", tmlp)
 	if err != nil {
-		log.Println(err)
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	if err := t.Execute(w, data); err != nil {
-		log.Println(err)
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
+
+func Index(w http.ResponseWriter, r *http.Request) {
+	log.Println("home")
+	RenderTemplate(w, "templates/home.tmpl", nil)
+}
+
 func Manager(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintln(w,"Manager")		
 }
