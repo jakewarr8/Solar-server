@@ -44,7 +44,7 @@ func NewRouter(db DataHandler) *mux.Router {
 	fe := FrontEnd{DataHandler: db}
 
 	var routes = Routes{
-		Route{"Index","GET","/",Index,},
+		//Route{"Index","GET","/",Index,},
 		Route{"MobileView","POST","/mobile",MobileView,},
 		Route{"LastMeasurement","GET","/lastmeasurement/loc/{loc}/ser/{ser}/reg/{reg}",fe.LastMeasurement,},
 		Route{"GetCSV","GET","/getcsv/loc/{loc}/ser/{ser}/reg/{reg}",fe.GetCSV,},
