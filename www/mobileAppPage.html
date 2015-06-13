@@ -24,9 +24,9 @@
 
 	<script>
 		//Server will insert JSON string here...
-		var json = '[{\x22location":"TxState","tables":[{"serial":"0001","regs":["Line1Volts","Line2Volts","Line3Volts"]},{"serial":"0002","regs":["L1V","L2V","L2F"]}]}]'
+		var json = '[{\x22location":"TxState","tables":[{"serial":"7056","regs":["L2Volts"]}]}]'
 		data = JSON.parse(json);
-		
+		console.log(data);
 		//Make tables with this data
 		for (var loc in data) {
 			var name = data[loc].location //don't user var location = data[loc].location;

@@ -13,8 +13,6 @@ import (
 	"log"
 	"time"
 	"path"
-//	"io/ioutil"
-	
 )
 
 type Route struct {
@@ -44,16 +42,16 @@ func NewRouter(db DataHandler) *mux.Router {
 	fe := FrontEnd{DataHandler: db}
 
 	var routes = Routes{
-		//Route{"Index","GET","/",Index,},
+		Route{"Index","GET","/",Index,},
+		Route{"Contact","GET","/contact",Contact,},
+		Route{"Manager","GET","/manager",Manager,},
 		Route{"MobileView","POST","/mobile",MobileView,},
 		Route{"LastMeasurement","GET","/lastmeasurement/loc/{loc}/ser/{ser}/reg/{reg}",fe.LastMeasurement,},
 		Route{"GetCSV","GET","/getcsv/loc/{loc}/ser/{ser}/reg/{reg}",fe.GetCSV,},
 		Route{"MeasurementsShow","GET","/measurements/location/{location}/serial/{serial}/reg/{reg}/start/{start}/end/{end}",fe.MeasurementsShow,},
 		Route{"ShowLocationsClusters","GET","/locationsInfo",fe.ShowLocationsClusters,},
-		Route{"SetMeasurement","POST","/setmeasurement",fe.SetMeasurement,},
 		Route{"NewAccount","POST","/newuser",fe.SetNewUser,},
-		Route{"Manager","GET","/manager",Manager,},
-		Route{"Auth","POST","/auth",fe.Auth,},	
+
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -74,7 +72,17 @@ type DataPayload struct {
 func RenderTemplate(w http.ResponseWriter, tmlp string, data *DataPayload) { //data interface{}
 	if data != nil {
 		log.Println(data)
+		t, err := template.ParseFiles(tmlp)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := t.Execute(w, data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
 	}
+
 	t, err := template.ParseFiles("templates/layout.tmpl", tmlp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -87,12 +95,15 @@ func RenderTemplate(w http.ResponseWriter, tmlp string, data *DataPayload) { //d
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	log.Println("home")
 	RenderTemplate(w, "templates/home.tmpl", nil)
 }
 
+func Contact(w http.ResponseWriter, r *http.Request){
+	RenderTemplate(w, "templates/contact.tmpl", nil)
+}
+
 func Manager(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintln(w,"Manager")		
+	RenderTemplate(w, "templates/manager.tmpl", nil)
 }
 
 func MobileView(w http.ResponseWriter, r *http.Request){
@@ -116,10 +127,6 @@ func MobileView(w http.ResponseWriter, r *http.Request){
 
 type FrontEnd struct {
 	DataHandler
-}
-
-func (fe FrontEnd) Auth(w http.ResponseWriter, r *http.Request) {
-	
 }
 
 func (fe FrontEnd) SetNewUser(w http.ResponseWriter, r *http.Request) {
@@ -153,19 +160,6 @@ func (fe FrontEnd) SetNewUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintln(w,"Make sure your serial is correct.")
 	}
-}
-
-func (fe FrontEnd) SetMeasurement(w http.ResponseWriter, r *http.Request) {
-/*
-	log.Println(r.Body)
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		return
-	}	
-	s := string(body[:])
-	log.Println(s)
-*/
 }
 
 func (fe FrontEnd) LastMeasurement(w http.ResponseWriter, r *http.Request) {
