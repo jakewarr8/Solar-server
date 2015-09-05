@@ -36,8 +36,9 @@ function sel_pop(obj) {
 			for (var reg in regs) {
  				var register = regs[reg];
  				var is = location+"-"+serial.serial+"-"+register.name+"-"+register.type;
+ 				//console.log("hehe");
  				$("#loc-ser_selector").append('<div class="pure-u-1-2 pure-u-md-1-3"><div class="center"><label for="'+is+'" class=" pure-checkbox"><div class="pure-button pure-u-1 checkButton"><input id="'+is+'" type="checkbox" value="" checked>'+register.name+'</div></label></div></div>');
- 				$("#"+is).change(checkboxclicked);
+ 				//$("#"+is).change(checkboxclicked);
  				
  				loadTableForReg(location,serial.serial,register.name,register.type);
  			}
@@ -107,18 +108,21 @@ function loadTableForReg(loc,ser,reg,type) {
 	var url = "/measurements/location/"+loc+"/serial/"+ser+"/reg/"+reg+"/start/2014-12-16T05:07:00Z/end/2015-12-17T14:07:00Z";
 	$.getJSON(url, function(data) { 
 	
+		var sel = ser+reg;
+		sel = sel.replace(/\|/g, "r")
+		
 		//CREATE HTML
 		var tables = document.getElementById("tables");
 		var gridbox = document.createElement('div');
 		gridbox.setAttribute('class', 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-2');
-		gridbox.setAttribute('id', ser+reg+'g');
+		gridbox.setAttribute('id', sel+'g');
 		
 		var tablebox = document.createElement('div');
 		tablebox.setAttribute('class', 'gr');
 		
 		var container = document.createElement('div');
 		container.setAttribute('class', 'tc');
-		container.setAttribute('id', ser+reg);
+		container.setAttribute('id', sel);
 		
 // 		var btn = document.createElement('BUTTON');
 // 		btn.setAttribute('class', 'opener');
@@ -132,9 +136,9 @@ function loadTableForReg(loc,ser,reg,type) {
 		tables.appendChild(gridbox);
 		
 		console.log(data);
-		
+		sel = "#"+sel
+		console.log(sel)
 		//get chart then set
-		var sel = "#"+ser+reg;
 		registerCharts[reg] = $(sel).highcharts('StockChart', {
 			chart : {
 				events : {

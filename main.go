@@ -24,5 +24,5 @@ func main() {
 	}()
 	
 	router := NewRouter(db)
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":7014", router))
 }
